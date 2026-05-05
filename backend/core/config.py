@@ -6,11 +6,7 @@ from typing import Any
 class Settings(BaseSettings):
     
     API_V1_STR: str = "/api/v1"
-    PROJECT_NAME: str = "BizzInt"
-    
-    GEMINI_API_KEY: str
-    #GOOGLE_REDIRECT_URI: str
-    #SECRET_KEY: str
+    PROJECT_NAME: str = "Stager"
     
     POSTGRES_SERVER: str
     POSTGRES_PORT: str
