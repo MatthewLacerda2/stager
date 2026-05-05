@@ -1,0 +1,4 @@
+alembic
+ollama
+pydantic
+uvicorn
