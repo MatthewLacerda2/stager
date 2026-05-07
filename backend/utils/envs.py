@@ -1,2 +1,2 @@
 NUM_DIMENSIONS = 3072
-OPENCNPJ_DELAY = 12
+MAIN_MODEL = "gemini-3.1-flash-lite-preview"

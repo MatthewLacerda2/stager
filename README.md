@@ -1,8 +1,7 @@
 # stager
-Create scenarios with 3D objects and render them using plain english text and render
+Create and visualize 3D scenarios with plain English text prompts. No artistic skill required.
 
-This is a SaaS where people without any 3D art experience can prompt to create scenarios and renders. It's meant for fast prototyping, heavy lifting, creating 3D versions of images and for people without 3D art experience to create 3D scenes and render them.
-It's similar to lovable.dev in the sense it's not meant for production-grade art, or doesn't replace professional artists, because AI isn't good enough for that. But it gets you good stuff fast.
+It's similar to lovable.dev in the sense it's not meant for production-grade art, nor does it replace professional artists. It gets you good stuff fast.
 
 # Architecture
 
