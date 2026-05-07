@@ -5,28 +5,53 @@ It's similar to lovable.dev in the sense it's not meant for production-grade art
 
 # Architecture
 
-the frontend sends the request to our api
-the api creates an agentic loop:
-	It sends a request to Ollama wit tools at it's disposal
-	If Gemini replies with a tool call, the tool may read/update the db or call Blender via Linux commands;
-	the tools may move or instantiate objects, lights, materials, and update the db so the app knows the scenary;
-	the tools are meant to remove as much cognitive load from the AI as possible and use the least and easier steps to apply the operation the user wants;
-	the response is sent to the user so they get the updated version of the scene and/or the renders
+The frontend sends the request to our api
+The Api creates an agentic loop:
+	It sends a request to Gemini with tools at it's disposal
+  Gemini calls the tools. They:
+    - update the db and tell the API how to update the frontend
+	  - may move, rotate and scale stuff, change lights and materials
+	  - are meant to remove as much cognitive load from the AI as possible
+    - should allow for any operation in the least amount of tool calls
 
-the app does NOT create objects, AI is not good enough for that yet. we pick from a pool and place them, much like 3D artists do in sketchfab. the app does create materials procedurally
+The App does NOT create objects, AI is not good enough for that yet. We pick from a pool and place them, much like 3D artists do in Sketchfab.
+
+The tools are (mostly) Python scripts that manipulate Blender.
+
+## Folder Structure
+
+- /backend
+  - /core (app's configurations)
+  - /models
+  - /repositories
+  - /schemas
+  - /api
+    - /v1
+  - /services (pipelines and tools)
+    - /agents
+    - /tools
+  - /utils (contains utility functions)
+
+## Database
+
+- group_objs: group objects in scene with semantic retrieval
+- blender_objects: description and embedding, pos, rot, scale, ...
+- cameras: render settings, fov, pos, rot, ...
+- lights: pos, rot, scale, color, intensity, ...
+- renders: image_url, embedding, ...
 
 # Tech stack
 
 - Alembic (Database Migration)
 - FastAPI (Fast, Python)
   - SQLAlchemy (ORM)
-  - Ollama
+  - Gemini
+  - Blender CLI and Python API (bpy)
 - PostgreSQL
 - React + Vite + TS
   - React Three Fiber
   - Three.js
   - GLTF
-- Blender CLI in Linux
 
 # How to run
 
