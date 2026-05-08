@@ -12,7 +12,7 @@ class Render(Base):
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     description = Column(String)
-    description_embedding = Column(Vector(NUM_DIMENSIONS))
+    description_embedding = Column(Vector(NUM_DIMENSIONS), nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
     
     cam_id = Column(UUID(as_uuid=True), ForeignKey("cameras.id"))

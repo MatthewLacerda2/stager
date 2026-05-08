@@ -12,13 +12,13 @@ class BlenderObject(Base):
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     description = Column(String, nullable=True)
-    description_embedding = Column(Vector(NUM_DIMENSIONS))
-    ctx_count = Column(Integer)
+    description_embedding = Column(Vector(NUM_DIMENSIONS), nullable=True)
     
     # Spatial data
-    origin = Column(ARRAY(Float))
     boundbox = Column(ARRAY(Float))
+    boundbox_offset = Column(ARRAY(Float))
     radius = Column(Float)
+    radius_offset = Column(ARRAY(Float))
     
     # Transformation
     pos = Column(ARRAY(Float))
