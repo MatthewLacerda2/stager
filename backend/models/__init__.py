@@ -1,15 +1,27 @@
 from .base import Base
+from .scene import Scene
+from .chat import Chat
+from .chat_turn import ChatTurn
+from .agent_log import AgentLog
 from .blender_object import BlenderObject
-from .camera import Camera
+from .group_object import GroupObject
+from .scene_object import SceneObject
+from .modifier import Modifier
 from .light import Light
-from .group_obj import GroupObj
+from .camera import Camera
 from .render import Render
 
 __all__ = [
-    "Base", 
-    "BlenderObject", 
-    "Camera", 
-    "Light", 
-    "GroupObj", 
+    "Base",
+    "Scene",
+    "Chat",
+    "ChatTurn",
+    "AgentLog",
+    "BlenderObject",
+    "GroupObject",
+    "SceneObject",
+    "Modifier",
+    "Light",
+    "Camera",
     "Render"
 ]

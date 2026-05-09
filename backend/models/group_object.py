@@ -4,12 +4,12 @@ from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 from .base import Base
 
-class Light(Base):
-    __tablename__ = "lights"
-
+class GroupObject(Base):
+    __tablename__ = "group_objects"
+    
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     scene_id = Column(UUID(as_uuid=True), ForeignKey("scenes.id"))
-    type = Column(String)  # POINT, SUN, SPOT, AREA
+    name = Column(String, nullable=True)
     
     pos_x = Column(Float)
     pos_y = Column(Float)
@@ -23,10 +23,6 @@ class Light(Base):
     scale_y = Column(Float)
     scale_z = Column(Float)
     
-    color = Column(String)
-    intensity = Column(Float)
-
-    #render_texture_url = Column(String, nullable=True) #TODO: this
-    
     # Relationships
-    scene = relationship("Scene", back_populates="lights")
+    scene = relationship("Scene", back_populates="group_objects")
+    scene_objects = relationship("SceneObject", back_populates="group_object")
