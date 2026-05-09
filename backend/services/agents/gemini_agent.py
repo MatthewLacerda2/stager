@@ -31,6 +31,29 @@ def system_prompt() -> str:
         "Such 'scratchpad' is added to your chat context as your turn's response."
     )
 
+from .tools import (
+    search_library_objects,
+    search_scene_objects,
+    describe_scene,
+    create_object,
+    update_object,
+    delete_object,
+    create_group,
+    update_group,
+    delete_group,
+    create_modifier,
+    update_modifier,
+    delete_modifier,
+    create_light,
+    update_light,
+    delete_light,
+    create_camera,
+    update_camera,
+    delete_camera,
+    sketch_scene,
+    render_scene
+)
+
 async def main():
     api_key = os.getenv("GEMINI_API_KEY")
     if not api_key:
@@ -39,15 +62,26 @@ async def main():
 
     instruction = system_prompt()
     tools = [
-        fetch_website_text,
-        list_files,
-        read_text_files,
-        read_image_file,
-        create_file,
-        create_text_file,
-        get_video_screenshot,
-        get_target_info,
-        edit_text_files
+        search_library_objects,
+        search_scene_objects,
+        describe_scene,
+        create_object,
+        update_object,
+        delete_object,
+        create_group,
+        update_group,
+        delete_group,
+        create_modifier,
+        update_modifier,
+        delete_modifier,
+        create_light,
+        update_light,
+        delete_light,
+        create_camera,
+        update_camera,
+        delete_camera,
+        sketch_scene,
+        render_scene
     ]
     messages = []
 
