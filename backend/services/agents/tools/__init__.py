@@ -1,10 +1,10 @@
-from .discovery import search_library_objects, search_scene_objects, describe_scene
-from .objects import create_object, update_object, delete_object
-from .groups import create_group, update_group, delete_group
-from .modifiers import create_modifier, update_modifier, delete_modifier
-from .lights import create_light, update_light, delete_light
-from .cameras import create_camera, update_camera, delete_camera
-from .rendering import sketch_scene, render_scene
+from .discovery_tools import search_library_objects, search_scene_objects, describe_scene
+from .objects_tools import create_object, update_object, delete_object
+from .groups_tools import create_group, update_group, delete_group
+from .modifiers_tools import create_modifier, update_modifier, delete_modifier
+from .lights_tools import create_light, update_light, delete_light
+from .camera_tools import create_camera, update_camera, delete_camera
+from .rendering_tools import sketch_scene, render_scene
 
 __all__ = [
     "search_library_objects",
