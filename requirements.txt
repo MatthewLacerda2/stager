@@ -6,3 +6,4 @@ pydantic
 uvicorn
 python-dotenv
 pydantic-settings
+fake-bpy-module-latest

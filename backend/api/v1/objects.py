@@ -10,9 +10,9 @@ async def list_objects():
     """List all available library assets, indicating if they are currently placed in any scene."""
     pass
 
-@router.post("/upload", response_model=List[BlenderObjectResponse])
-async def upload_objects(files: List[UploadFile] = File(...)):
-    """Upload batches of 3D objects to be indexed in the database."""
+@router.post("/upload", response_model=BlenderObjectResponse)
+async def upload_object(file: UploadFile = File(...)):
+    """Upload a 3D object to be indexed in the database."""
     pass
 
 @router.delete("/{object_id}", status_code=204)
