@@ -28,4 +28,4 @@ class SceneObject(Base):
     scene = relationship("Scene", back_populates="scene_objects")
     blender_object = relationship("BlenderObject", back_populates="scene_objects")
     group_object = relationship("GroupObject", back_populates="scene_objects")
-    modifiers = relationship("Modifier", back_populates="scene_object")
+    array_modifier = relationship("ArrayModifier", back_populates="scene_object", uselist=False)

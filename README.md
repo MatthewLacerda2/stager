@@ -46,7 +46,7 @@ The tools are Python functions that manipulate Blender.
 - blender_objects: name, description, description_embedding, asset_path
 - group_objects: scene_id, name, pos, rot, scale
 - scene_objects: scene_id, blender_object_id, group_object_id, pos, rot, scale
-- modifiers: scene_object_id, execution_order, type, data
+- array_modifiers: scene_object_id, count, offset_type, factor_x, factor_y, factor_z
 - lights: scene_id, type, pos, rot, scale, color, intensity
 - cameras: scene_id, name, pos, rot, fov, is_active
 - renders: scene_id, camera_id, image_url, description, embeddings
@@ -62,9 +62,9 @@ The tools are Python functions that manipulate Blender.
 - create_group: Create an Empty node to group multiple objects.
 - update_group: Move, rotate, or scale an entire group.
 - delete_group: Remove a group and optionally delete its children.
-- create_modifier: Apply a procedural modifier to a scene object.
-- update_modifier: Update parameters or order of an existing modifier.
-- delete_modifier: Remove a modifier from an object's stack.
+- create_array_modifier: Apply an Array modifier to duplicate an object along an axis.
+- update_array_modifier: Update parameters of an existing Array modifier.
+- delete_array_modifier: Remove the Array modifier from an object.
 - create_light: Instantiate a new light source (POINT, SUN, SPOT, AREA).
 - update_light: Modify properties of an existing light.
 - delete_light: Remove a light source.
