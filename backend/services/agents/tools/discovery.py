@@ -1,4 +1,4 @@
-from typing import Optional, List, Dict, Any
+from typing import List, Dict, Any
 
 def search_library_objects(query: str, limit: int = 5) -> List[Dict[str, Any]]:
     """

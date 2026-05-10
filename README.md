@@ -14,9 +14,14 @@ The Api creates an agentic loop:
 	  - are meant to remove as much cognitive load from the AI as possible
     - should allow for any operation in the least amount of tool calls
 
-The App does NOT create objects, AI is not good enough for that yet. We pick from a pool and place them, much like 3D artists do in Sketchfab.
+There is a pool of objects the AI can pick from, much like 3D artists do in Sketchfab.
+The AI can also instantiate primitives.
 
-The tools are (mostly) Python scripts that manipulate Blender.
+The AI does NOT:
+- Create brand new models.
+- Animate things.
+
+The tools are Python functions that manipulate Blender.
 
 ## Folder Structure
 
@@ -34,16 +39,45 @@ The tools are (mostly) Python scripts that manipulate Blender.
 
 ## Database
 
-- group_objs: group objects in scene with semantic retrieval
-- blender_objects: description and embedding, pos, rot, scale, ...
-- cameras: render settings, fov, pos, rot, ...
-- lights: pos, rot, scale, color, intensity, ...
-- renders: image_url, embedding, ...
+- scenes: name, brief_description, detailed_description, embeddings
+- chats: scene_id, created_at
+- chat_turns: chat_id, user_prompt, agent_response
+- agent_logs: chat_turn_id, tool_name, tool_input, tool_output
+- blender_objects: name, description, description_embedding, asset_path
+- group_objects: scene_id, name, pos, rot, scale
+- scene_objects: scene_id, blender_object_id, group_object_id, pos, rot, scale
+- modifiers: scene_object_id, execution_order, type, data
+- lights: scene_id, type, pos, rot, scale, color, intensity
+- cameras: scene_id, name, pos, rot, fov, is_active
+- renders: scene_id, camera_id, image_url, description, embeddings
+
+## AI Tools
+
+- search_library_objects: Semantic search over the base asset pool.
+- search_scene_objects: Semantic search over objects currently in the active scene.
+- describe_scene: Get a structured summary of the objects and their placement in the scene.
+- create_object: Instantiate a 3D asset from the library into the scene.
+- update_object: Modify transforms or parenting of a scene object.
+- delete_object: Remove a scene object and its modifiers.
+- create_group: Create an Empty node to group multiple objects.
+- update_group: Move, rotate, or scale an entire group.
+- delete_group: Remove a group and optionally delete its children.
+- create_modifier: Apply a procedural modifier to a scene object.
+- update_modifier: Update parameters or order of an existing modifier.
+- delete_modifier: Remove a modifier from an object's stack.
+- create_light: Instantiate a new light source (POINT, SUN, SPOT, AREA).
+- update_light: Modify properties of an existing light.
+- delete_light: Remove a light source.
+- create_camera: Place a new camera viewpoint in the layout.
+- update_camera: Adjust framing, resolution, or focal settings.
+- delete_camera: Remove a camera.
+- sketch_scene: Trigger a fast, lower-quality render for visual confirmation.
+- render_scene: Trigger the high-fidelity production rendering pipeline.
 
 # Tech stack
 
 - Alembic (Database Migration)
-- FastAPI (Fast, Python)
+- FastAPI
   - SQLAlchemy (ORM)
   - Gemini
   - Blender CLI and Python API (bpy)

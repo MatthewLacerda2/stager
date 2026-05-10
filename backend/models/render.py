@@ -1,6 +1,6 @@
 import uuid
 from datetime import datetime
-from sqlalchemy import Column, String, Text, DateTime, ForeignKey
+from sqlalchemy import Column, String, Text, DateTime, ForeignKey, Boolean
 from sqlalchemy.dialects.postgresql import UUID
 from pgvector.sqlalchemy import Vector
 from sqlalchemy.orm import relationship
@@ -14,6 +14,7 @@ class Render(Base):
     scene_id = Column(UUID(as_uuid=True), ForeignKey("scenes.id"))
     camera_id = Column(UUID(as_uuid=True), ForeignKey("cameras.id"))
     
+    is_sketch = Column(Boolean, default=False)
     image_url = Column(String)
     description = Column(Text)
     description_embedding = Column(Vector(NUM_DIMENSIONS))

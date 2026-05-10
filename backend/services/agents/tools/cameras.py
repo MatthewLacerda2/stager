@@ -38,7 +38,6 @@ def update_camera(
 ) -> Dict[str, Any]:
     """
     Adjusts framing, resolution, or focal settings. Only provided fields will be updated.
-    Note: If is_active is updated to true, backend automatically toggles all other scene cameras to false.
     
     Args:
         camera_id: Target camera ID.

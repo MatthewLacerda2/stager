@@ -10,6 +10,7 @@ class GroupObject(Base):
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     scene_id = Column(UUID(as_uuid=True), ForeignKey("scenes.id"))
     name = Column(String, nullable=True)
+    description = Column(String, nullable=True)
     
     pos_x = Column(Float)
     pos_y = Column(Float)
