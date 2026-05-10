@@ -220,3 +220,5 @@ __marimo__/
 # Project Specifics
 auxpy.py
 auxmd.md
+*.blend
+*.png
