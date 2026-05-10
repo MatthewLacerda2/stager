@@ -17,7 +17,7 @@ def system_prompt() -> str:
         "### Available Tools\n"
         "- Discovery: search the asset library, search the active scene, or describe the full scene layout programmatically.\n"
         "- Manipulation: create, update, or delete scene objects, groups, lights, cameras, and array modifiers.\n"
-        "- Rendering: trigger a fast 'sketch' for a low-quality visual confirmation, or a high-fidelity 'render' for the final production image.\n\n"
+        "- Rendering: trigger a render in low or high quality.\n\n"
         
         "Your tool calls are listed in the chat history, so you won't lose track of past actions. "
     )

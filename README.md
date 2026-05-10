@@ -71,8 +71,7 @@ The tools are Python functions that manipulate Blender.
 - create_camera: Place a new camera viewpoint in the layout.
 - update_camera: Adjust framing, resolution, or focal settings.
 - delete_camera: Remove a camera.
-- sketch_scene: Trigger a fast, lower-quality render for visual confirmation.
-- render_scene: Trigger the high-fidelity production rendering pipeline.
+- render_scene: Trigger the rendering pipeline.
 
 # Tech stack
 

@@ -17,7 +17,6 @@ from .tools import (
     create_camera,
     update_camera,
     delete_camera,
-    sketch_scene,
     render_scene
 )
 
@@ -40,6 +39,5 @@ tools = [
     create_camera,
     update_camera,
     delete_camera,
-    sketch_scene,
     render_scene
 ]
