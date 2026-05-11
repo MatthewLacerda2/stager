@@ -6,3 +6,5 @@ pydantic
 uvicorn
 python-dotenv
 pydantic-settings
+asyncpg
+SQLAlchemy
