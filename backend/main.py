@@ -18,12 +18,35 @@ logging.basicConfig(
 
 logger = logging.getLogger(__name__)
 
+import subprocess
+import os
+
+blender_process = None
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    global blender_process
+    worker_script = os.path.join(os.path.dirname(__file__), "services", "blender", "worker_server.py")
+    
+    # Start the persistent worker subprocess
+    blender_process = subprocess.Popen(["blender", "-b", "-P", worker_script])
+    logger.info("Blender persistent worker started on port 50051.")
+    
+    yield
+    
+    # Clean up on shutdown
+    if blender_process:
+        blender_process.terminate()
+        blender_process.wait()
+        logger.info("Blender persistent worker stopped.")
+
 app = FastAPI(
     title="Stager",
     description="API for the Stager SaaS.",
     version="0.1.0",
     openapi_url="/api/v1/openapi.json",
     docs_url="/api/v1/docs",
+    lifespan=lifespan
 )
 
 app.add_middleware(

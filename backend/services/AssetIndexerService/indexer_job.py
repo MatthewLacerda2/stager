@@ -28,7 +28,7 @@ async def index_asset(db: AsyncSession, raw_file_path: str) -> Optional[str]:
     
     # Step 1: Extract Obj
     temp_obj_path = os.path.join(temp_workspace, f"cleaned_{original_name}.obj")
-    run_blender_extract_obj(raw_file_path, temp_obj_path)
+    temp_obj_path, bounds_data = run_blender_extract_obj(raw_file_path, temp_obj_path)
     
     # Step 2: Photoshoot
     screenshot_paths = run_blender_photoshoot(temp_obj_path, temp_workspace)
@@ -44,9 +44,9 @@ async def index_asset(db: AsyncSession, raw_file_path: str) -> Optional[str]:
         db=db,
         original_name=original_name,
         temp_obj_path=temp_obj_path,
-        temp_image_paths=screenshot_paths,
         description=description,
-        embedding=embedding
+        embedding=embedding,
+        bounds_data=bounds_data
     )
     
     return str(new_object.id)

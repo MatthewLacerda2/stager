@@ -8,9 +8,9 @@ async def save_indexed_asset(
     db: AsyncSession,
     original_name: str,
     temp_obj_path: str,
-    temp_image_paths: List[str],
     description: str,
-    embedding: list[float]
+    embedding: list[float],
+    bounds_data: dict
 ) -> BlenderObject:
     """
     Moves processed files to permanent storage and atomically saves the DB record.
@@ -28,7 +28,17 @@ async def save_indexed_asset(
                 name=original_name,
                 description=description,
                 description_embedding=embedding,
-                asset_path=final_obj_path
+                asset_path=final_obj_path,
+                boundbox_x=bounds_data.get("boundbox_x"),
+                boundbox_y=bounds_data.get("boundbox_y"),
+                boundbox_z=bounds_data.get("boundbox_z"),
+                boundbox_offset_x=bounds_data.get("boundbox_offset_x"),
+                boundbox_offset_y=bounds_data.get("boundbox_offset_y"),
+                boundbox_offset_z=bounds_data.get("boundbox_offset_z"),
+                radius=bounds_data.get("radius"),
+                radius_offset_x=bounds_data.get("radius_offset_x"),
+                radius_offset_y=bounds_data.get("radius_offset_y"),
+                radius_offset_z=bounds_data.get("radius_offset_z")
             )
             db.add(new_object)
             await db.flush()  # Generates the UUID instantly inside the transaction

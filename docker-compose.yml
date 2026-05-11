@@ -50,6 +50,7 @@ services:
         condition: service_healthy
     volumes:
       - ./media:/app/media
+      - ./storage:/app/storage
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health"]

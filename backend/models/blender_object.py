@@ -1,5 +1,5 @@
 import uuid
-from sqlalchemy import Column, String, Text
+from sqlalchemy import Column, String, Text, Float
 from sqlalchemy.dialects.postgresql import UUID
 from pgvector.sqlalchemy import Vector
 from sqlalchemy.orm import relationship
@@ -15,6 +15,18 @@ class BlenderObject(Base):
     description_embedding = Column(Vector(NUM_DIMENSIONS), nullable=True)
     
     asset_path = Column(String, nullable=True)
+    
+    boundbox_x = Column(Float, nullable=True)
+    boundbox_y = Column(Float, nullable=True)
+    boundbox_z = Column(Float, nullable=True)
+    boundbox_offset_x = Column(Float, nullable=True)
+    boundbox_offset_y = Column(Float, nullable=True)
+    boundbox_offset_z = Column(Float, nullable=True)
+    
+    radius = Column(Float, nullable=True)
+    radius_offset_x = Column(Float, nullable=True)
+    radius_offset_y = Column(Float, nullable=True)
+    radius_offset_z = Column(Float, nullable=True)
     
     # Relationships
     scene_objects = relationship("SceneObject", back_populates="blender_object")

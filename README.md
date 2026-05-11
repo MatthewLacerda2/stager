@@ -93,3 +93,10 @@ Or, you can run it locally:
 In a separate terminal:
 `cd frontend`
 `npm i && npm run dev`
+
+# Future
+
+- Add a API for a Assets Library
+- Do a batch job in Gemini for AssetIndexer (it's cheaper and better than Gemma4:e4b)
+- Add Materials
+- Experiment with Geometry Nodes and Material Nodes

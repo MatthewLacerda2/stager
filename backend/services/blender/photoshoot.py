@@ -4,96 +4,101 @@ import sys
 import math
 from mathutils import Vector
 
-argv = sys.argv
-if "--" not in argv:
-    print("Error: No arguments provided.")
-    sys.exit(1)
+def process(input_obj, output_dir):
+    # Clear scene
+    bpy.ops.object.select_all(action='SELECT')
+    bpy.ops.object.delete()
 
-args = argv[argv.index("--") + 1:]
-if len(args) < 2:
-    print("Usage: blender -b -P photoshoot.py -- <input_obj> <output_dir>")
-    sys.exit(1)
+    # Import object
+    bpy.ops.wm.obj_import(filepath=input_obj)
+    meshes = [obj for obj in bpy.context.scene.objects if obj.type == 'MESH']
+    if not meshes:
+        raise ValueError("No meshes found.")
 
-input_obj = args[0]
-output_dir = args[1]
+    for obj in meshes:
+        obj.select_set(True)
+    bpy.context.view_layer.objects.active = meshes[0]
+    if len(meshes) > 1:
+        bpy.ops.object.join()
 
-# Clear scene
-bpy.ops.object.select_all(action='SELECT')
-bpy.ops.object.delete()
+    target = bpy.context.active_object
 
-# Import object
-bpy.ops.wm.obj_import(filepath=input_obj)
-meshes = [obj for obj in bpy.context.scene.objects if obj.type == 'MESH']
-if not meshes:
-    print("No meshes found.")
-    sys.exit(1)
+    # Calculate bounding sphere radius
+    local_bbox_corners = [Vector(corner) for corner in target.bound_box]
+    center_local = sum(local_bbox_corners, Vector()) / 8.0
+    center_world = target.matrix_world @ center_local
 
-for obj in meshes:
-    obj.select_set(True)
-bpy.context.view_layer.objects.active = meshes[0]
-if len(meshes) > 1:
-    bpy.ops.object.join()
+    radius = max((target.matrix_world @ v - center_world).length for v in local_bbox_corners)
 
-target = bpy.context.active_object
+    # Create an Empty at the center for the camera to pivot around
+    bpy.ops.object.empty_add(type='PLAIN_AXES', location=center_world)
+    pivot = bpy.context.active_object
 
-# Calculate bounding sphere radius
-local_bbox_corners = [Vector(corner) for corner in target.bound_box]
-center_local = sum(local_bbox_corners, Vector()) / 8.0
-center_world = target.matrix_world @ center_local
+    # Setup Camera
+    bpy.ops.object.camera_add(location=(center_world.x, center_world.y - 1, center_world.z))
+    cam = bpy.context.active_object
+    cam.data.lens = 35.0  # 35mm focal length
 
-radius = max((target.matrix_world @ v - center_world).length for v in local_bbox_corners)
+    # Calculate optimal camera distance based on FOV
+    fov = cam.data.angle
+    distance = (radius * 1.3) / math.sin(fov / 2.0)  # 1.3 padding to ensure it fits perfectly
 
-# Create an Empty at the center for the camera to pivot around
-bpy.ops.object.empty_add(type='PLAIN_AXES', location=center_world)
-pivot = bpy.context.active_object
+    cam.location = (center_world.x, center_world.y - distance, center_world.z)
 
-# Setup Camera
-bpy.ops.object.camera_add(location=(center_world.x, center_world.y - 1, center_world.z))
-cam = bpy.context.active_object
-cam.data.lens = 35.0  # 35mm focal length
+    # Parent camera to pivot and track the center
+    cam.parent = pivot
+    track = cam.constraints.new(type='TRACK_TO')
+    track.target = pivot
+    track.track_axis = 'TRACK_NEGATIVE_Z'
+    track.up_axis = 'UP_Y'
 
-# Calculate optimal camera distance based on FOV
-# distance = radius / sin(FOV / 2)
-fov = cam.data.angle
-distance = (radius * 1.3) / math.sin(fov / 2.0)  # 1.3 padding to ensure it fits perfectly
+    bpy.context.scene.camera = cam
 
-cam.location = (center_world.x, center_world.y - distance, center_world.z)
+    # Setup Lighting
+    bpy.ops.object.light_add(type='SUN', location=(center_world.x + 5, center_world.y - 5, center_world.z + 10))
+    light1 = bpy.context.object
+    light1.data.energy = 3.0
 
-# Parent camera to pivot and track the center
-cam.parent = pivot
-track = cam.constraints.new(type='TRACK_TO')
-track.target = pivot
-track.track_axis = 'TRACK_NEGATIVE_Z'
-track.up_axis = 'UP_Y'
+    bpy.ops.object.light_add(type='SUN', location=(center_world.x - 5, center_world.y + 5, center_world.z + 5))
+    light2 = bpy.context.object
+    light2.data.energy = 1.0
 
-bpy.context.scene.camera = cam
+    # Render settings
+    bpy.context.scene.render.engine = 'BLENDER_EEVEE'
+    bpy.context.scene.render.resolution_x = 720
+    bpy.context.scene.render.resolution_y = 720
 
-# Setup Lighting
-bpy.ops.object.light_add(type='SUN', location=(center_world.x + 5, center_world.y - 5, center_world.z + 10))
-light1 = bpy.context.object
-light1.data.energy = 3.0
+    # Create output dir
+    os.makedirs(output_dir, exist_ok=True)
 
-bpy.ops.object.light_add(type='SUN', location=(center_world.x - 5, center_world.y + 5, center_world.z + 5))
-light2 = bpy.context.object
-light2.data.energy = 1.0
+    # Render 5 pictures
+    angles = 5
+    images = []
+    for i in range(angles):
+        # Rotate pivot around Z axis (360/5 = 72 degrees)
+        pivot.rotation_euler[2] = math.radians(i * (360.0 / angles))
+        bpy.context.view_layer.update()
+        
+        filepath = os.path.join(output_dir, f"shot_{i}.png")
+        bpy.context.scene.render.filepath = filepath
+        bpy.ops.render.render(write_still=True)
+        images.append(filepath)
+        
+    return images
 
-# Render settings
-bpy.context.scene.render.engine = 'BLENDER_EEVEE'
-bpy.context.scene.render.resolution_x = 720
-bpy.context.scene.render.resolution_y = 720
+if __name__ == "__main__":
+    argv = sys.argv
+    if "--" not in argv:
+        print("Error: No arguments provided.")
+        sys.exit(1)
 
-# Create output dir
-os.makedirs(output_dir, exist_ok=True)
+    args = argv[argv.index("--") + 1:]
+    if len(args) < 2:
+        print("Usage: blender -b -P photoshoot.py -- <input_obj> <output_dir>")
+        sys.exit(1)
 
-# Render 5 pictures
-angles = 5
-for i in range(angles):
-    # Rotate pivot around Z axis (360/5 = 72 degrees)
-    pivot.rotation_euler[2] = math.radians(i * (360.0 / angles))
-    bpy.context.view_layer.update()
+    input_obj = args[0]
+    output_dir = args[1]
     
-    filepath = os.path.join(output_dir, f"shot_{i}.png")
-    bpy.context.scene.render.filepath = filepath
-    bpy.ops.render.render(write_still=True)
-    
-print(f"Photoshoot complete! Saved to {output_dir}")
+    process(input_obj, output_dir)
+    print(f"Photoshoot complete! Saved to {output_dir}")

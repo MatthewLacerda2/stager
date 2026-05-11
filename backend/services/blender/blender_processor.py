@@ -1,32 +1,32 @@
-import os
-from typing import List
+import json
+import urllib.request
+from typing import List, Tuple, Dict
 
-def run_blender_extract_obj(raw_file_path: str, output_obj_path: str) -> str:
-    """Runs the headless blender script to extract and clean the obj."""
-    script_path = os.path.join(os.path.dirname(__file__), "extract_obj.py")
+WORKER_URL = "http://localhost:50051"
+
+def _send_request(endpoint: str, payload: dict) -> dict:
+    url = f"{WORKER_URL}{endpoint}"
+    data = json.dumps(payload).encode('utf-8')
+    req = urllib.request.Request(url, data=data, headers={'Content-Type': 'application/json'})
+    with urllib.request.urlopen(req) as response:
+        return json.loads(response.read().decode())
+
+def run_blender_extract_obj(raw_file_path: str, output_obj_path: str) -> Tuple[str, Dict[str, float]]:
+    """Tells the persistent Blender worker to extract and clean the obj, returning bounds."""
+    print(f"Sending extract request to Blender worker for {raw_file_path}...")
+    result = _send_request("/extract", {
+        "input_file": raw_file_path,
+        "output_file": output_obj_path
+    })
     
-    cmd = [
-        "blender", "-b", "-P", script_path, "--",
-        raw_file_path, output_obj_path
-    ]
-    
-    # In a production environment, this will spawn the process
-    # subprocess.run(cmd, check=True, capture_output=True)
-    print(f"Executing: {' '.join(cmd)}")
-    return output_obj_path
+    return output_obj_path, result.get("bounds", {})
 
 def run_blender_photoshoot(obj_file_path: str, output_dir: str) -> List[str]:
-    """Runs the headless blender script to take 5 screenshots of the obj."""
-    script_path = os.path.join(os.path.dirname(__file__), "photoshoot.py")
+    """Tells the persistent Blender worker to take 5 screenshots of the obj."""
+    print(f"Sending photoshoot request to Blender worker for {obj_file_path}...")
+    result = _send_request("/photoshoot", {
+        "input_obj": obj_file_path,
+        "output_dir": output_dir
+    })
     
-    cmd = [
-        "blender", "-b", "-P", script_path, "--",
-        obj_file_path, output_dir
-    ]
-    
-    # In a production environment, this will spawn the process
-    # subprocess.run(cmd, check=True, capture_output=True)
-    print(f"Executing: {' '.join(cmd)}")
-    
-    images = [os.path.join(output_dir, f"shot_{i}.png") for i in range(5)]
-    return images
+    return result.get("images", [])
