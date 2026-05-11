@@ -48,7 +48,7 @@ Pipeline for indexing `.obj` or `.blend` assets.
   - `blender_processor.py`: Wraps these Blender scripts in Python functions.
     - `extract_obj.py`: Extracts only the meshes, merges them, and exports to `.obj`.
     - `photoshoot.py`: Renders pictures around the object from different angles.
-  - `ollama_description.py`: Describes the object based on the pictures.
+  - `gemini_description.py`: Describes the object based on the pictures using Gemini.
   - `gemini_embedding.py`: Embeds the text description.
   - `save_indexed_obj.py`: Saves the data to the db and the .obj in storage/assets.
 
@@ -97,6 +97,5 @@ In a separate terminal:
 # Future
 
 - Add a API for a Assets Library
-- Do a batch job in Gemini for AssetIndexer (it's cheaper and better than Gemma4:e4b)
 - Add Materials
 - Experiment with Geometry Nodes and Material Nodes

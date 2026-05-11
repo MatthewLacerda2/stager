@@ -1,5 +1,4 @@
 alembic
-ollama
 google-genai
 pgvector
 pydantic
