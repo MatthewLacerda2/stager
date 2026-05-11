@@ -14,6 +14,7 @@ class Settings(BaseSettings):
     
     DATABASE_URL: str | None = None
     TEST_DATABASE_URL: str | None = None  # Optional, only needed for tests
+    GEMINI_API_KEY: str | None = None
     
     @model_validator(mode="after")
     def assemble_db_url(self) -> "Settings":
