@@ -8,7 +8,7 @@ def get_gemini_embedding(text: str) -> list[float]:
     client = genai.Client()
     
     response = client.models.embed_content(
-        model="gemini-embedding-002",
+        model="gemini-embedding-2",
         contents=text,
     )
     return response.embeddings[0].values

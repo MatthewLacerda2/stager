@@ -99,3 +99,4 @@ In a separate terminal:
 - Add a API for a Assets Library
 - Add Materials
 - Experiment with Geometry Nodes and Material Nodes
+- Embed images as well
