@@ -1,6 +1,6 @@
 services:
   db:
-    image: postgres:16-alpine
+    image: pgvector/pgvector:16-pgvector-alpine
     container_name: stager_db
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
@@ -18,7 +18,7 @@ services:
       retries: 5
 
   db_test:
-    image: postgres:16-alpine
+    image: pgvector/pgvector:16-pgvector-alpine
     container_name: stager_db_test
     environment:
       POSTGRES_USER: postgres
@@ -35,6 +35,8 @@ services:
       context: .
       dockerfile: backend/Dockerfile
     container_name: stager_backend
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     environment:
       POSTGRES_SERVER: db
       POSTGRES_PORT: 5432
@@ -80,16 +82,16 @@ services:
       backend:
         condition: service_healthy
 
-  ollama:
-    image: ollama/ollama:latest
-    container_name: stager_ollama
-    ports:
-      - "11434:11434"
-    volumes:
-      - ollama_data:/root/.ollama
-    restart: unless-stopped
+#  ollama:
+#    image: ollama/ollama:latest
+#    container_name: stager_ollama
+#    ports:
+#      - "11434:11434"
+#    volumes:
+#      - ollama_data:/root/.ollama
+#    restart: unless-stopped
 
 volumes:
   stager_db_data:
   stager_db_test_data:
-  ollama_data:
+#  ollama_data:
