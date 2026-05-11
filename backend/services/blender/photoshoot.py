@@ -72,6 +72,13 @@ def process(input_obj, output_dir):
         bpy.context.scene.cycles.samples = 16  # Ultra low samples for blazing-fast 0.5s renders
     except Exception:
         pass
+        
+    # Disable denoising since Debian/Ubuntu apt builds of Blender often omit Intel OpenImageDenoise (OIDN)
+    for vl in bpy.context.scene.view_layers:
+        try:
+            vl.cycles.use_denoising = False
+        except Exception:
+            pass
             
     bpy.context.scene.render.resolution_x = 720
     bpy.context.scene.render.resolution_y = 720
