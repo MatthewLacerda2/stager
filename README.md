@@ -32,10 +32,25 @@ The tools are Python functions that manipulate Blender.
   - /schemas
   - /api
     - /v1
-  - /services (pipelines and tools)
+  - /services
     - /agents
-    - /tools
+      - /tools
+    - /AssetIndexerService
+    - /blender
   - /utils (contains utility functions)
+
+## Asset Indexing Pipeline
+
+Pipeline for indexing `.obj` or `.blend` assets.
+
+- **`/services/AssetIndexerService/`** (Orchestrator & DB)
+  - `indexer_job.py`: Receives raw files and calls the next scripts.
+  - `blender_processor.py`: Wraps these Blender scripts in Python functions.
+    - `extract_obj.py`: Extracts only the meshes, merges them, and exports to `.obj`.
+    - `photoshoot.py`: Renders pictures around the object from different angles.
+  - `ollama_description.py`: Describes the object based on the pictures.
+  - `gemini_embedding.py`: Embeds the text description.
+  - `save_indexed_obj.py`: Saves the data to the db and the .obj in storage/assets.
 
 ## Database
 
@@ -50,28 +65,6 @@ The tools are Python functions that manipulate Blender.
 - lights: scene_id, type, pos, rot, scale, color, intensity
 - cameras: scene_id, name, pos, rot, fov, is_active
 - renders: scene_id, camera_id, image_url, description, embeddings
-
-## AI Tools
-
-- search_library_objects: Semantic search over the base asset pool.
-- search_scene_objects: Semantic search over objects currently in the active scene.
-- describe_scene: Get a structured summary of the objects and their placement in the scene.
-- create_object: Instantiate a 3D asset from the library into the scene.
-- update_object: Modify transforms or parenting of a scene object.
-- delete_object: Remove a scene object and its modifiers.
-- create_group: Create an Empty node to group multiple objects.
-- update_group: Move, rotate, or scale an entire group.
-- delete_group: Remove a group and optionally delete its children.
-- create_array_modifier: Apply an Array modifier to duplicate an object along an axis.
-- update_array_modifier: Update parameters of an existing Array modifier.
-- delete_array_modifier: Remove the Array modifier from an object.
-- create_light: Instantiate a new light source (POINT, SUN, SPOT, AREA).
-- update_light: Modify properties of an existing light.
-- delete_light: Remove a light source.
-- create_camera: Place a new camera viewpoint in the layout.
-- update_camera: Adjust framing, resolution, or focal settings.
-- delete_camera: Remove a camera.
-- render_scene: Trigger the rendering pipeline.
 
 # Tech stack
 

@@ -8,9 +8,10 @@ def describe_asset_with_ollama(image_paths: List[str]) -> str:
     Ollama accepts the file paths directly in the images array!
     """
     prompt = (
-        "You are looking at 5 different angles of a single 3D asset. "
-        "Describe this asset in detail, including its category, shape, texture, material, "
-        "and potential style/use-case. Return only the description."
+        "You are looking at 5 renders of from around a .obj file."
+        "Describe the asset in detail. You must say what the object is, describe the primary shape and relevant details."
+        "Your description be useful for a semantic search, similar to how Google's AI generated answers are."
+        "Return only the description. Do NOT start with things like 'Here is a detailed description'."
     )
     
     response:GenerateResponse = ollama.generate(

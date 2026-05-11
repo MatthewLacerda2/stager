@@ -1,3 +1,4 @@
+# blender -b -P render_test.py
 import os
 import bpy
 
