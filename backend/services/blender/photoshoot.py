@@ -64,7 +64,15 @@ def process(input_obj, output_dir):
     light2.data.energy = 1.0
 
     # Render settings
-    bpy.context.scene.render.engine = 'BLENDER_EEVEE'
+    # EEVEE was replaced by EEVEE-Next (BLENDER_EEVEE_NEXT) in newer Blender releases (4.2+)
+    try:
+        bpy.context.scene.render.engine = 'BLENDER_EEVEE'
+    except Exception:
+        try:
+            bpy.context.scene.render.engine = 'BLENDER_EEVEE_NEXT'
+        except Exception:
+            bpy.context.scene.render.engine = 'BLENDER_WORKBENCH'
+            
     bpy.context.scene.render.resolution_x = 720
     bpy.context.scene.render.resolution_y = 720
 
