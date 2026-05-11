@@ -1,5 +1,6 @@
 import json
 import urllib.request
+import urllib.error
 from typing import List, Tuple, Dict
 
 WORKER_URL = "http://localhost:50051"
@@ -8,8 +9,12 @@ def _send_request(endpoint: str, payload: dict) -> dict:
     url = f"{WORKER_URL}{endpoint}"
     data = json.dumps(payload).encode('utf-8')
     req = urllib.request.Request(url, data=data, headers={'Content-Type': 'application/json'})
-    with urllib.request.urlopen(req) as response:
-        return json.loads(response.read().decode())
+    try:
+        with urllib.request.urlopen(req) as response:
+            return json.loads(response.read().decode())
+    except urllib.error.HTTPError as e:
+        error_body = e.read().decode()
+        raise Exception(f"Blender Worker Error [{e.code}]: {error_body}")
 
 def run_blender_extract_obj(raw_file_path: str, output_obj_path: str) -> Tuple[str, Dict[str, float]]:
     """Tells the persistent Blender worker to extract and clean the obj, returning bounds."""
