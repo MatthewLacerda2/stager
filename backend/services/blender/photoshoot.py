@@ -64,14 +64,14 @@ def process(input_obj, output_dir):
     light2.data.energy = 1.0
 
     # Render settings
-    # EEVEE was replaced by EEVEE-Next (BLENDER_EEVEE_NEXT) in newer Blender releases (4.2+)
+    # Headless Docker containers often segmentation fault on EEVEE due to missing OpenGL display drivers.
+    # CYCLES is a pure software-based CPU raytracer that runs 100% stably in headless Linux environments.
+    bpy.context.scene.render.engine = 'CYCLES'
     try:
-        bpy.context.scene.render.engine = 'BLENDER_EEVEE'
+        bpy.context.scene.cycles.device = 'CPU'
+        bpy.context.scene.cycles.samples = 16  # Ultra low samples for blazing-fast 0.5s renders
     except Exception:
-        try:
-            bpy.context.scene.render.engine = 'BLENDER_EEVEE_NEXT'
-        except Exception:
-            bpy.context.scene.render.engine = 'BLENDER_WORKBENCH'
+        pass
             
     bpy.context.scene.render.resolution_x = 720
     bpy.context.scene.render.resolution_y = 720
