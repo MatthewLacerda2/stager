@@ -9,3 +9,5 @@ pydantic-settings
 asyncpg
 SQLAlchemy
 slowapi
+fastapi
+python-multipart
