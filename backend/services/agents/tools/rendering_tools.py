@@ -1,10 +1,11 @@
+import asyncio
 from typing import Optional, Dict, Any
-from ..context import get_scene_id, get_db_session, run_async
+from ..context import get_scene_id, get_db_session
 from ....repositories.render_repository import RenderRepository
 from ....repositories.camera_repository import CameraRepository
 from ...blender.sketch_render import render_scene_sketch
 
-def render_scene(camera_id: Optional[str] = None, is_sketch: bool = False) -> Dict[str, Any]:
+async def render_scene(camera_id: Optional[str] = None, is_sketch: bool = False) -> Dict[str, Any]:
     """
     Fires the rendering pipeline.
     
@@ -20,20 +21,21 @@ def render_scene(camera_id: Optional[str] = None, is_sketch: bool = False) -> Di
 
     if camera_id is None:
         cam_repo = CameraRepository(db)
-        active_cam = run_async(cam_repo.get_active_camera(scene_id))
+        active_cam = await cam_repo.get_active_camera(scene_id)
         if active_cam is None:
             return {"error": "No active camera in the scene. Create one first."}
         camera_id = str(active_cam.id)
 
-    image_url = render_scene_sketch(str(scene_id), camera_id)
+    # Run the blocking gRPC call in a background thread to prevent blocking the async event loop
+    image_url = await asyncio.to_thread(render_scene_sketch, str(scene_id), camera_id)
 
     repo = RenderRepository(db)
-    render = run_async(repo.create({
+    render = await repo.create({
         "scene_id": scene_id,
         "camera_id": camera_id,
         "is_sketch": is_sketch,
         "image_url": image_url,
-    }))
+    })
     return {
         "id": str(render.id),
         "image_url": render.image_url,

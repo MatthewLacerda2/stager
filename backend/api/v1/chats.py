@@ -22,7 +22,17 @@ logger = logging.getLogger(__name__)
 
 async def _run_agent_turn(db, scene_id, chat_id, turn_id, prompt):
     """Run the Gemini agent loop for a single user prompt and persist results."""
-    messages = [{"role": "user", "parts": [{"text": prompt}]}]
+    turn_repo = ChatTurnRepository(db)
+    past_turns = await turn_repo.get_recent_history(chat_id, limit=32)
+
+    messages = []
+    for past in past_turns:
+        messages.append({"role": "user", "parts": [{"text": past.user_prompt}]})
+        messages.append({"role": "model", "parts": [{"text": past.agent_response}]})
+        #TODO: mention toolcalls if any
+
+    # Append current user prompt
+    messages.append({"role": "user", "parts": [{"text": prompt}]})
 
     agent_result = await gemini_agent(
         messages=messages,
@@ -33,7 +43,6 @@ async def _run_agent_turn(db, scene_id, chat_id, turn_id, prompt):
 
     # Persist the agent's text response back onto the turn
     if agent_result.text:
-        turn_repo = ChatTurnRepository(db)
         await turn_repo.update(turn_id, {"agent_response": agent_result.text})
     else:
         logger.warning(f"Agent did not produce a text response for scene {scene_id} and chat {chat_id}")

@@ -1,8 +1,8 @@
 from typing import Optional, Dict, Any
-from ..context import get_scene_id, get_db_session, run_async
+from ..context import get_scene_id, get_db_session
 from ....repositories.group_object_repository import GroupObjectRepository
 
-def create_group(
+async def create_group(
     name: str,
     pos_x: float = 0.0, pos_y: float = 0.0, pos_z: float = 0.0,
     rot_x: float = 0.0, rot_y: float = 0.0, rot_z: float = 0.0,
@@ -27,16 +27,16 @@ def create_group(
     scene_id = get_scene_id()
     repo = GroupObjectRepository(db)
 
-    group = run_async(repo.create({
+    group = await repo.create({
         "scene_id": scene_id,
         "name": name,
         "pos_x": pos_x, "pos_y": pos_y, "pos_z": pos_z,
         "rot_x": rot_x, "rot_y": rot_y, "rot_z": rot_z,
         "scale_x": scale_x, "scale_y": scale_y, "scale_z": scale_z,
-    }))
+    })
     return {"id": str(group.id), "status": "created"}
 
-def update_group(
+async def update_group(
     group_object_id: str,
     pos_x: Optional[float] = None, pos_y: Optional[float] = None, pos_z: Optional[float] = None,
     rot_x: Optional[float] = None, rot_y: Optional[float] = None, rot_z: Optional[float] = None,
@@ -72,12 +72,12 @@ def update_group(
     if not updates:
         return {"id": group_object_id, "status": "no changes"}
 
-    result = run_async(repo.update(group_object_id, updates))
+    result = await repo.update(group_object_id, updates)
     if result is None:
         return {"error": f"Group {group_object_id} not found"}
     return {"id": group_object_id, "status": "updated"}
 
-def delete_group(group_object_id: str, delete_children: bool = False) -> Dict[str, Any]:
+async def delete_group(group_object_id: str, delete_children: bool = False) -> Dict[str, Any]:
     """
     Removes the group Empty node.
     
@@ -87,7 +87,7 @@ def delete_group(group_object_id: str, delete_children: bool = False) -> Dict[st
     """
     db = get_db_session()
     repo = GroupObjectRepository(db)
-    deleted = run_async(repo.delete_with_children(group_object_id, delete_children))
+    deleted = await repo.delete_with_children(group_object_id, delete_children)
     if not deleted:
         return {"error": f"Group {group_object_id} not found"}
     return {"id": group_object_id, "status": "deleted"}

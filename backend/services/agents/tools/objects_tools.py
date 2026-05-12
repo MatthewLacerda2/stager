@@ -1,8 +1,8 @@
 from typing import Optional, Dict, Any
-from ..context import get_scene_id, get_db_session, run_async
+from ..context import get_scene_id, get_db_session
 from ....repositories.scene_object_repository import SceneObjectRepository
 
-def create_object(
+async def create_object(
     blender_object_id: str,
     pos_x: float = 0.0, pos_y: float = 0.0, pos_z: float = 0.0,
     rot_x: float = 0.0, rot_y: float = 0.0, rot_z: float = 0.0,
@@ -39,10 +39,10 @@ def create_object(
     if group_object_id is not None:
         data["group_object_id"] = group_object_id
 
-    obj = run_async(repo.create(data))
+    obj = await repo.create(data)
     return {"id": str(obj.id), "status": "created"}
 
-def update_object(
+async def update_object(
     scene_object_id: str,
     pos_x: Optional[float] = None, pos_y: Optional[float] = None, pos_z: Optional[float] = None,
     rot_x: Optional[float] = None, rot_y: Optional[float] = None, rot_z: Optional[float] = None,
@@ -84,12 +84,12 @@ def update_object(
     if not updates:
         return {"id": scene_object_id, "status": "no changes"}
 
-    result = run_async(repo.update(scene_object_id, updates))
+    result = await repo.update(scene_object_id, updates)
     if result is None:
         return {"error": f"Scene object {scene_object_id} not found"}
     return {"id": scene_object_id, "status": "updated"}
 
-def delete_object(scene_object_id: str) -> Dict[str, Any]:
+async def delete_object(scene_object_id: str) -> Dict[str, Any]:
     """
     Deletes an instance entirely from the scene.
     
@@ -98,7 +98,7 @@ def delete_object(scene_object_id: str) -> Dict[str, Any]:
     """
     db = get_db_session()
     repo = SceneObjectRepository(db)
-    deleted = run_async(repo.delete(scene_object_id))
+    deleted = await repo.delete(scene_object_id)
     if not deleted:
         return {"error": f"Scene object {scene_object_id} not found"}
     return {"id": scene_object_id, "status": "deleted"}

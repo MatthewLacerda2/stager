@@ -12,6 +12,7 @@ class ChatTurn(Base):
     chat_id = Column(UUID(as_uuid=True), ForeignKey("chats.id"))
     user_prompt = Column(Text, nullable=True)
     agent_response = Column(Text, nullable=True)
+    #TODO: store token usage
     
     created_at = Column(DateTime, default=datetime.utcnow)
     

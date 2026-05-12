@@ -1,8 +1,8 @@
 from typing import Optional, Dict, Any
-from ..context import get_scene_id, get_db_session, run_async
+from ..context import get_scene_id, get_db_session
 from ....repositories.light_repository import LightRepository
 
-def create_light(
+async def create_light(
     type: str,
     pos_x: float = 0.0, pos_y: float = 0.0, pos_z: float = 0.0,
     rot_x: float = 0.0, rot_y: float = 0.0, rot_z: float = 0.0,
@@ -30,16 +30,16 @@ def create_light(
     db = get_db_session()
     scene_id = get_scene_id()
     repo = LightRepository(db)
-    light = run_async(repo.create({
+    light = await repo.create({
         "scene_id": scene_id, "type": type,
         "pos_x": pos_x, "pos_y": pos_y, "pos_z": pos_z,
         "rot_x": rot_x, "rot_y": rot_y, "rot_z": rot_z,
         "scale_x": scale_x, "scale_y": scale_y, "scale_z": scale_z,
         "color": color, "intensity": intensity,
-    }))
+    })
     return {"id": str(light.id), "status": "created"}
 
-def update_light(
+async def update_light(
     light_id: str,
     pos_x: Optional[float] = None, pos_y: Optional[float] = None, pos_z: Optional[float] = None,
     rot_x: Optional[float] = None, rot_y: Optional[float] = None, rot_z: Optional[float] = None,
@@ -77,12 +77,12 @@ def update_light(
             updates[field] = value
     if not updates:
         return {"id": light_id, "status": "no changes"}
-    result = run_async(repo.update(light_id, updates))
+    result = await repo.update(light_id, updates)
     if result is None:
         return {"error": f"Light {light_id} not found"}
     return {"id": light_id, "status": "updated"}
 
-def delete_light(light_id: str) -> Dict[str, Any]:
+async def delete_light(light_id: str) -> Dict[str, Any]:
     """
     Removes a light source from the scene.
     
@@ -91,7 +91,7 @@ def delete_light(light_id: str) -> Dict[str, Any]:
     """
     db = get_db_session()
     repo = LightRepository(db)
-    deleted = run_async(repo.delete(light_id))
+    deleted = await repo.delete(light_id)
     if not deleted:
         return {"error": f"Light {light_id} not found"}
     return {"id": light_id, "status": "deleted"}

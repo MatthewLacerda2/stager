@@ -1,11 +1,11 @@
 import logging
 from typing import Optional, Dict, Any
-from ..context import get_db_session, run_async
+from ..context import get_db_session
 from ....repositories.array_modifier_repository import ArrayModifierRepository
 
 logger = logging.getLogger(__name__)
 
-def create_array_modifier(
+async def create_array_modifier(
     scene_object_id: str,
     count: int = 2,
     offset_type: str = "relative",
@@ -33,17 +33,17 @@ def create_array_modifier(
         logger.warning(f"Offset type {offset_type} is not relative nor constant, setting to relative")
         offset_type = "relative"
 
-    modifier = run_async(repo.create({
+    modifier = await repo.create({
         "scene_object_id": scene_object_id,
         "count": count,
         "offset_type": offset_type,
         "factor_x": factor_x,
         "factor_y": factor_y,
         "factor_z": factor_z,
-    }))
+    })
     return {"id": str(modifier.id), "status": "created"}
 
-def update_array_modifier(
+async def update_array_modifier(
     array_modifier_id: str,
     count: Optional[int] = None,
     offset_type: Optional[str] = None,
@@ -76,12 +76,12 @@ def update_array_modifier(
     if not updates:
         return {"id": array_modifier_id, "status": "no changes"}
 
-    result = run_async(repo.update(array_modifier_id, updates))
+    result = await repo.update(array_modifier_id, updates)
     if result is None:
         return {"error": f"Array modifier {array_modifier_id} not found"}
     return {"id": array_modifier_id, "status": "updated"}
 
-def delete_array_modifier(array_modifier_id: str) -> Dict[str, Any]:
+async def delete_array_modifier(array_modifier_id: str) -> Dict[str, Any]:
     """
     Removes the Array modifier from the object.
     
@@ -90,7 +90,7 @@ def delete_array_modifier(array_modifier_id: str) -> Dict[str, Any]:
     """
     db = get_db_session()
     repo = ArrayModifierRepository(db)
-    deleted = run_async(repo.delete(array_modifier_id))
+    deleted = await repo.delete(array_modifier_id)
     if not deleted:
         return {"error": f"Array modifier {array_modifier_id} not found"}
     return {"id": array_modifier_id, "status": "deleted"}

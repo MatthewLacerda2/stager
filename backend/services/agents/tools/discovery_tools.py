@@ -1,5 +1,5 @@
 from typing import List, Dict, Any
-from ..context import get_scene_id, get_db_session, run_async
+from ..context import get_scene_id, get_db_session
 from ....services.gemini_embedding import get_gemini_embedding
 from ....repositories.blender_object_repository import BlenderObjectRepository
 from ....repositories.scene_object_repository import SceneObjectRepository
@@ -7,7 +7,7 @@ from ....repositories.group_object_repository import GroupObjectRepository
 from ....repositories.light_repository import LightRepository
 from ....repositories.camera_repository import CameraRepository
 
-def search_library_objects(query: str, limit: int = 5) -> List[Dict[str, Any]]:
+async def search_library_objects(query: str, limit: int = 5) -> List[Dict[str, Any]]:
     """
     Searches the asset pool using semantic text matching.
     
@@ -21,7 +21,7 @@ def search_library_objects(query: str, limit: int = 5) -> List[Dict[str, Any]]:
     db = get_db_session()
     embedding = get_gemini_embedding(query)
     repo = BlenderObjectRepository(db)
-    results = run_async(repo.semantic_search(embedding, limit=limit))
+    results = await repo.semantic_search(embedding, limit=limit)
     return [
         {
             "id": str(obj.id),
@@ -31,7 +31,7 @@ def search_library_objects(query: str, limit: int = 5) -> List[Dict[str, Any]]:
         for obj in results
     ]
 
-def search_scene_objects(query: str) -> List[Dict[str, Any]]:
+async def search_scene_objects(query: str) -> List[Dict[str, Any]]:
     """
     Semantically searches instances (scene_objects and group_objects) currently instantiated inside the active scene.
     
@@ -45,7 +45,7 @@ def search_scene_objects(query: str) -> List[Dict[str, Any]]:
     scene_id = get_scene_id()
     embedding = get_gemini_embedding(query)
     repo = SceneObjectRepository(db)
-    results = run_async(repo.semantic_search(scene_id, embedding))
+    results = await repo.semantic_search(scene_id, embedding)
     return [
         {
             "id": str(so.id),
@@ -60,7 +60,7 @@ def search_scene_objects(query: str) -> List[Dict[str, Any]]:
         for so in results
     ]
 
-def describe_scene() -> str:
+async def describe_scene() -> str:
     """
     Programmatically generates a structured text summary of the objects placements in the scene.
     
@@ -71,16 +71,16 @@ def describe_scene() -> str:
     scene_id = get_scene_id()
 
     so_repo = SceneObjectRepository(db)
-    scene_objects = run_async(so_repo.get_all_by_scene_id(scene_id))
+    scene_objects = await so_repo.get_all_by_scene_id(scene_id)
 
     go_repo = GroupObjectRepository(db)
-    groups = run_async(go_repo.get_by_scene_id(scene_id))
+    groups = await go_repo.get_by_scene_id(scene_id)
 
     light_repo = LightRepository(db)
-    lights = run_async(light_repo.get_by_scene_id(scene_id))
+    lights = await light_repo.get_by_scene_id(scene_id)
 
     cam_repo = CameraRepository(db)
-    cameras = run_async(cam_repo.get_by_scene_id(scene_id))
+    cameras = await cam_repo.get_by_scene_id(scene_id)
 
     lines = []
     lines.append(f"=== Scene Summary ===")

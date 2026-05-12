@@ -27,20 +27,3 @@ def set_db_session(db: AsyncSession):
 
 def get_db_session() -> AsyncSession:
     return _db_var.get()
-
-
-def run_async(coro):
-    """Run an async coroutine from a sync tool function.
-
-    Works whether or not an event loop is already running by reusing
-    the current loop's thread-pool when inside an async context.
-    """
-    try:
-        loop = asyncio.get_running_loop()
-    except RuntimeError:
-        return asyncio.run(coro)
-
-    import concurrent.futures
-    with concurrent.futures.ThreadPoolExecutor() as pool:
-        future = pool.submit(asyncio.run, coro)
-        return future.result()
