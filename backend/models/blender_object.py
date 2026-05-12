@@ -1,6 +1,6 @@
 import uuid
 from sqlalchemy import Column, String, Text, Float
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.dialects.postgresql import UUID, ARRAY
 from pgvector.sqlalchemy import Vector
 from sqlalchemy.orm import relationship
 from .base import Base
@@ -13,6 +13,7 @@ class BlenderObject(Base):
     name = Column(String, nullable=True)
     description = Column(Text, nullable=True)
     description_embedding = Column(Vector(NUM_DIMENSIONS), nullable=True)
+    keywords = Column(ARRAY(String), nullable=False, server_default='{}')
     
     asset_path = Column(String, nullable=True)
     

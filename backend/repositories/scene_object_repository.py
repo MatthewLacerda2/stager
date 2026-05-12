@@ -10,12 +10,27 @@ class SceneObjectRepository(BaseRepository[SceneObject]):
     def __init__(self, db: AsyncSession):
         super().__init__(SceneObject, db)
 
-    async def semantic_search(self, scene_id: str, query_embedding: list[float], limit: int = 5) -> List[SceneObject]:
+    async def semantic_search(self, scene_id: str, query_str: str, query_embedding: list[float], limit: int = 5) -> List[SceneObject]:
+        from sqlalchemy import literal, case
+
+        words = [w.lower() for w in query_str.split() if w]
+        if words:
+            # Calculate match score: how many queried words exist in the keywords array
+            keyword_score = sum(
+                case((literal(w).op("= ANY")(BlenderObject.keywords), 1), else_=0)
+                for w in words
+            )
+        else:
+            keyword_score = literal(0)
+
         query = (
             select(self.model)
             .join(self.model.blender_object)
             .where(self.model.scene_id == scene_id)
-            .order_by(BlenderObject.description_embedding.cosine_distance(query_embedding))
+            .order_by(
+                keyword_score.desc(),
+                BlenderObject.description_embedding.cosine_distance(query_embedding).asc()
+            )
             .options(joinedload(self.model.blender_object))
             .options(joinedload(self.model.group_object))
             .limit(limit)

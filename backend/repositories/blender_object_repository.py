@@ -9,10 +9,25 @@ class BlenderObjectRepository(BaseRepository[BlenderObject]):
     def __init__(self, db: AsyncSession):
         super().__init__(BlenderObject, db)
 
-    async def semantic_search(self, query_embedding: list[float], limit: int = 16) -> List[BlenderObject]:
+    async def semantic_search(self, query_str: str, query_embedding: list[float], limit: int = 16) -> List[BlenderObject]:
+        from sqlalchemy import literal, case
+
+        words = [w.lower() for w in query_str.split() if w]
+        if words:
+            # Calculate match score: how many queried words exist in the keywords array
+            keyword_score = sum(
+                case((literal(w).op("= ANY")(self.model.keywords), 1), else_=0)
+                for w in words
+            )
+        else:
+            keyword_score = literal(0)
+
         query = (
             select(self.model)
-            .order_by(self.model.description_embedding.cosine_distance(query_embedding))
+            .order_by(
+                keyword_score.desc(),
+                self.model.description_embedding.cosine_distance(query_embedding).asc()
+            )
             .limit(limit)
         )
         result = await self.db.execute(query)

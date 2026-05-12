@@ -21,7 +21,7 @@ async def search_library_objects(query: str, limit: int = 5) -> List[Dict[str, A
     db = get_db_session()
     embedding = get_gemini_embedding(query)
     repo = BlenderObjectRepository(db)
-    results = await repo.semantic_search(embedding, limit=limit)
+    results = await repo.semantic_search(query, embedding, limit=limit)
     return [
         {
             "id": str(obj.id),
@@ -45,7 +45,7 @@ async def search_scene_objects(query: str) -> List[Dict[str, Any]]:
     scene_id = get_scene_id()
     embedding = get_gemini_embedding(query)
     repo = SceneObjectRepository(db)
-    results = await repo.semantic_search(scene_id, embedding)
+    results = await repo.semantic_search(scene_id, query, embedding)
     return [
         {
             "id": str(so.id),

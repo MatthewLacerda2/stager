@@ -102,3 +102,4 @@ async def delete_object(scene_object_id: str) -> Dict[str, Any]:
     if not deleted:
         return {"error": f"Scene object {scene_object_id} not found"}
     return {"id": scene_object_id, "status": "deleted"}
+
