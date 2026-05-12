@@ -6,6 +6,28 @@ from .lights_tools import create_light, update_light, delete_light
 from .camera_tools import create_camera, update_camera, delete_camera
 from .rendering_tools import render_scene
 
+tools = [
+    search_library_objects,
+    search_scene_objects,
+    describe_scene,
+    create_object,
+    update_object,
+    delete_object,
+    create_group,
+    update_group,
+    delete_group,
+    create_array_modifier,
+    update_array_modifier,
+    delete_array_modifier,
+    create_light,
+    update_light,
+    delete_light,
+    create_camera,
+    update_camera,
+    delete_camera,
+    render_scene
+]
+
 __all__ = [
     "search_library_objects",
     "search_scene_objects",
@@ -25,5 +47,6 @@ __all__ = [
     "create_camera",
     "update_camera",
     "delete_camera",
-    "render_scene"
+    "render_scene",
+    "tools"
 ]
