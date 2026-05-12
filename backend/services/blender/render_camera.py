@@ -115,8 +115,8 @@ def process(scene_data, output_path, is_sketch=False):
         except Exception:
             pass
             
-    bpy.context.scene.render.resolution_x = 1080
-    bpy.context.scene.render.resolution_y = 1080
+    bpy.context.scene.render.resolution_x = 720
+    bpy.context.scene.render.resolution_y = 720
 
     # Create output dir
     os.makedirs(os.path.dirname(output_path), exist_ok=True)

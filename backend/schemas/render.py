@@ -5,6 +5,7 @@ from datetime import datetime
 class RenderCreate(BaseModel):
     scene_id: UUID4
     camera_id: UUID4
+    is_sketch: bool = False
     
 class RenderResponse(BaseModel):
     id: UUID4

@@ -10,6 +10,8 @@ from ...schemas.pagination import PaginatedResponse
 
 router = APIRouter()
 
+from ...services.blender.sketch_render import render_scene_blender
+
 @router.post("/", response_model=RenderResponse)
 async def create_render(request: RenderCreate, db: AsyncSession = Depends(get_db)):
     """Request a new render (sketch or high-fidelity) for a camera."""
@@ -23,12 +25,18 @@ async def create_render(request: RenderCreate, db: AsyncSession = Depends(get_db
     if not camera:
         raise HTTPException(status_code=404, detail="Camera not found")
 
-    # TODO: Trigger the actual Blender render pipeline here and populate image_url/description.
+    # Trigger the actual Blender render pipeline here and populate image_url.
+    try:
+        image_url = await render_scene_blender(db, str(request.scene_id), str(request.camera_id), request.is_sketch)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Rendering failed: {str(e)}")
 
     repo = RenderRepository(db)
     render = await repo.create({
         "scene_id": request.scene_id,
         "camera_id": request.camera_id,
+        "is_sketch": request.is_sketch,
+        "image_url": image_url,
     })
     return render
 

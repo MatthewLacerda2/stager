@@ -3,7 +3,7 @@ from typing import Optional, Dict, Any
 from ..context import get_scene_id, get_db_session
 from ....repositories.render_repository import RenderRepository
 from ....repositories.camera_repository import CameraRepository
-from ...blender.sketch_render import render_scene_sketch
+from ...blender.sketch_render import render_scene_blender
 
 async def render_scene(camera_id: Optional[str] = None, is_sketch: bool = False) -> Dict[str, Any]:
     """
@@ -26,8 +26,8 @@ async def render_scene(camera_id: Optional[str] = None, is_sketch: bool = False)
             return {"error": "No active camera in the scene. Create one first."}
         camera_id = str(active_cam.id)
 
-    # Run the blocking gRPC call in a background thread to prevent blocking the async event loop
-    image_url = await asyncio.to_thread(render_scene_sketch, str(scene_id), camera_id)
+    # Call the async render_scene_blender function
+    image_url = await render_scene_blender(db, str(scene_id), camera_id, is_sketch)
 
     repo = RenderRepository(db)
     render = await repo.create({
