@@ -1,8 +1,9 @@
-from typing import List
-from sqlalchemy import select
+from typing import List, Tuple
+from sqlalchemy import select, exists
 from sqlalchemy.ext.asyncio import AsyncSession
 from .base import BaseRepository
 from ..models.blender_object import BlenderObject
+from ..models.scene_object import SceneObject
 
 class BlenderObjectRepository(BaseRepository[BlenderObject]):
     def __init__(self, db: AsyncSession):
@@ -16,3 +17,14 @@ class BlenderObjectRepository(BaseRepository[BlenderObject]):
         )
         result = await self.db.execute(query)
         return list(result.scalars().all())
+
+    async def get_all_with_usage(self) -> List[Tuple[BlenderObject, bool]]:
+        """Returns all blender objects along with whether they are placed in any scene."""
+        is_used_subq = (
+            exists()
+            .where(SceneObject.blender_object_id == BlenderObject.id)
+            .correlate(BlenderObject)
+        )
+        query = select(BlenderObject, is_used_subq.label("is_used"))
+        result = await self.db.execute(query)
+        return list(result.all())

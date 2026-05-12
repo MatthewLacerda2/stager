@@ -5,5 +5,5 @@ router = APIRouter()
 
 router.include_router(scenes.router, prefix="/scenes", tags=["scenes"])
 router.include_router(chats.router, prefix="/chats", tags=["chats"])
-router.include_router(renders.router, prefix="/renders", tags=["renders"])
 router.include_router(objects.router, prefix="/objects", tags=["objects"])
+router.include_router(renders.router, prefix="/renders", tags=["renders"])
