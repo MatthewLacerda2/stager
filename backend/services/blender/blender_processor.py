@@ -35,3 +35,14 @@ def run_blender_photoshoot(obj_file_path: str, output_dir: str) -> List[str]:
     })
     
     return result.get("images", [])
+
+def run_blender_render_camera(scene_data: dict, output_path: str, is_sketch: bool = False) -> str:
+    """Tells the persistent Blender worker to render a scene."""
+    print(f"Sending render request to Blender worker for {output_path} (sketch={is_sketch})...")
+    result = _send_request("/render", {
+        "scene_data": scene_data,
+        "output_path": output_path,
+        "is_sketch": is_sketch
+    })
+    
+    return result.get("image", output_path)

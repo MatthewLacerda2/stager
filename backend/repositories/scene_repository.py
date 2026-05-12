@@ -18,6 +18,7 @@ class SceneRepository(BaseRepository[Scene]):
                 selectinload(Scene.scene_objects).selectinload(SceneObject.blender_object),
                 selectinload(Scene.group_objects),
                 selectinload(Scene.lights),
+                selectinload(Scene.cameras),
             )
         )
         result = await self.db.execute(query)

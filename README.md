@@ -81,6 +81,7 @@ Pipeline for indexing `.obj` or `.blend` assets.
 
 # How to run
 
+`# Heads up! The Blender WorkerServer takes a few moments to load`
 `docker-compose build && docker-compose up -d`
 `alembic upgrade head`
 

@@ -8,6 +8,7 @@ sys.path.append(os.path.dirname(__file__))
 
 import photoshoot
 import extract_obj
+import render_camera
 
 class BlenderWorkerHandler(http.server.BaseHTTPRequestHandler):
     def do_POST(self):
@@ -27,6 +28,13 @@ class BlenderWorkerHandler(http.server.BaseHTTPRequestHandler):
                 output_dir = payload["output_dir"]
                 images = photoshoot.process(input_obj, output_dir)
                 self._send_success({"images": images})
+                
+            elif self.path == "/render":
+                scene_data = payload["scene_data"]
+                output_path = payload["output_path"]
+                is_sketch = payload.get("is_sketch", False)
+                image = render_camera.process(scene_data, output_path, is_sketch)
+                self._send_success({"image": image})
                 
             else:
                 self.send_response(404)
