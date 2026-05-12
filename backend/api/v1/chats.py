@@ -1,15 +1,53 @@
 from fastapi import APIRouter, Depends, HTTPException
 from uuid import UUID
 from typing import List
+from google.genai import Client
 from sqlalchemy.ext.asyncio import AsyncSession
 from ...core.database import get_db
 from ...repositories.scene_repository import SceneRepository
 from ...repositories.chat_repository import ChatRepository
 from ...repositories.chat_turn_repository import ChatTurnRepository
+from ...repositories.agent_log_repository import AgentLogRepository
 from ...schemas.chat import ChatCreate, ChatResume, ChatResponse, ChatInteractionResponse
+from ...services.agents.gemini_agent import gemini_agent
 from ..helpers import build_scene_state
 
 router = APIRouter()
+
+# Shared Gemini client (reused across requests)
+_client = Client()
+
+
+async def _run_agent_turn(db, scene_id, chat_id, turn_id, prompt):
+    """Run the Gemini agent loop for a single user prompt and persist results."""
+    messages = [{"role": "user", "parts": [{"text": prompt}]}]
+
+    agent_result = await gemini_agent(
+        messages=messages,
+        client=_client,
+        db=db,
+        scene_id=str(scene_id),
+    )
+
+    # Persist the agent's text response back onto the turn
+    if agent_result.text:
+        turn_repo = ChatTurnRepository(db)
+        await turn_repo.update(turn_id, {"agent_response": agent_result.text})
+
+    # Persist tool call logs
+    if agent_result.tool_calls:
+        log_repo = AgentLogRepository(db)
+        for tc in agent_result.tool_calls:
+            await log_repo.create({
+                "chat_turn_id": turn_id,
+                "tool_call_id": tc.id,
+                "tool_name": tc.name,
+                "tool_input": tc.args,
+                "tool_output": tc.response,
+            })
+
+    return agent_result
+
 
 @router.post("/", response_model=ChatInteractionResponse)
 async def create_chat(request: ChatCreate, db: AsyncSession = Depends(get_db)):
@@ -28,9 +66,7 @@ async def create_chat(request: ChatCreate, db: AsyncSession = Depends(get_db)):
         "user_prompt": request.prompt,
     })
 
-    # TODO: Run the Gemini agent loop here.
-    # The agent would process the prompt, call tools that mutate the scene,
-    # and return a text response. For now we just record the turn.
+    agent_result = await _run_agent_turn(db, request.scene_id, chat.id, turn.id, request.prompt)
 
     # Re-fetch scene with updated state after agent mutations
     scene = await scene_repo.get_full_scene(request.scene_id)
@@ -39,9 +75,10 @@ async def create_chat(request: ChatCreate, db: AsyncSession = Depends(get_db)):
     return ChatInteractionResponse(
         chat_id=chat.id,
         turn_id=turn.id,
-        agent_response=turn.agent_response,
+        agent_response=agent_result.text or None,
         scene_state=state,
     )
+
 
 @router.get("/scene/{scene_id}", response_model=List[ChatResponse])
 async def list_chats(scene_id: UUID, db: AsyncSession = Depends(get_db)):
@@ -54,6 +91,7 @@ async def list_chats(scene_id: UUID, db: AsyncSession = Depends(get_db)):
     chat_repo = ChatRepository(db)
     chats = await chat_repo.get_by_scene_id(scene_id)
     return chats
+
 
 @router.post("/{chat_id}/resume", response_model=ChatInteractionResponse)
 async def resume_chat(chat_id: UUID, request: ChatResume, db: AsyncSession = Depends(get_db)):
@@ -69,7 +107,7 @@ async def resume_chat(chat_id: UUID, request: ChatResume, db: AsyncSession = Dep
         "user_prompt": request.prompt,
     })
 
-    # TODO: Run the Gemini agent loop here.
+    agent_result = await _run_agent_turn(db, chat.scene_id, chat.id, turn.id, request.prompt)
 
     scene_repo = SceneRepository(db)
     scene = await scene_repo.get_full_scene(chat.scene_id)
@@ -78,9 +116,10 @@ async def resume_chat(chat_id: UUID, request: ChatResume, db: AsyncSession = Dep
     return ChatInteractionResponse(
         chat_id=chat.id,
         turn_id=turn.id,
-        agent_response=turn.agent_response,
+        agent_response=agent_result.text or None,
         scene_state=state,
     )
+
 
 @router.delete("/{chat_id}", status_code=204)
 async def delete_chat(chat_id: UUID, db: AsyncSession = Depends(get_db)):

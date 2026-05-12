@@ -8,6 +8,11 @@ class GroupObjectRepository(BaseRepository[GroupObject]):
     def __init__(self, db: AsyncSession):
         super().__init__(GroupObject, db)
 
+    async def get_by_scene_id(self, scene_id) -> list[GroupObject]:
+        query = select(self.model).where(self.model.scene_id == scene_id)
+        result = await self.db.execute(query)
+        return list(result.scalars().all())
+
     async def delete_with_children(self, group_object_id: str, delete_children: bool = False) -> bool:
         """
         Deletes a group and handles children appropriately.

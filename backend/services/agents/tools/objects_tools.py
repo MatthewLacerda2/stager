@@ -1,4 +1,6 @@
 from typing import Optional, Dict, Any
+from ..context import get_scene_id, get_db_session, run_async
+from ....repositories.scene_object_repository import SceneObjectRepository
 
 def create_object(
     blender_object_id: str,
@@ -23,7 +25,22 @@ def create_object(
         scale_z: Z scale coordinate.
         group_object_id: ID of the parent Empty group.
     """
-    pass
+    db = get_db_session()
+    scene_id = get_scene_id()
+    repo = SceneObjectRepository(db)
+
+    data = {
+        "scene_id": scene_id,
+        "blender_object_id": blender_object_id,
+        "pos_x": pos_x, "pos_y": pos_y, "pos_z": pos_z,
+        "rot_x": rot_x, "rot_y": rot_y, "rot_z": rot_z,
+        "scale_x": scale_x, "scale_y": scale_y, "scale_z": scale_z,
+    }
+    if group_object_id is not None:
+        data["group_object_id"] = group_object_id
+
+    obj = run_async(repo.create(data))
+    return {"id": str(obj.id), "status": "created"}
 
 def update_object(
     scene_object_id: str,
@@ -48,7 +65,29 @@ def update_object(
         scale_z: Z scale coordinate.
         group_object_id: Passing a valid UUID sets the parent; passing explicitly null/None unparents the object.
     """
-    pass
+    db = get_db_session()
+    repo = SceneObjectRepository(db)
+
+    updates = {}
+    for field, value in [
+        ("pos_x", pos_x), ("pos_y", pos_y), ("pos_z", pos_z),
+        ("rot_x", rot_x), ("rot_y", rot_y), ("rot_z", rot_z),
+        ("scale_x", scale_x), ("scale_y", scale_y), ("scale_z", scale_z),
+    ]:
+        if value is not None:
+            updates[field] = value
+
+    # group_object_id can explicitly be set to None to unparent
+    if group_object_id is not None:
+        updates["group_object_id"] = group_object_id
+
+    if not updates:
+        return {"id": scene_object_id, "status": "no changes"}
+
+    result = run_async(repo.update(scene_object_id, updates))
+    if result is None:
+        return {"error": f"Scene object {scene_object_id} not found"}
+    return {"id": scene_object_id, "status": "updated"}
 
 def delete_object(scene_object_id: str) -> Dict[str, Any]:
     """
@@ -57,4 +96,9 @@ def delete_object(scene_object_id: str) -> Dict[str, Any]:
     Args:
         scene_object_id: Target scene object ID.
     """
-    pass
+    db = get_db_session()
+    repo = SceneObjectRepository(db)
+    deleted = run_async(repo.delete(scene_object_id))
+    if not deleted:
+        return {"error": f"Scene object {scene_object_id} not found"}
+    return {"id": scene_object_id, "status": "deleted"}

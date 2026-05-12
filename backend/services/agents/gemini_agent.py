@@ -3,7 +3,9 @@ from dotenv import load_dotenv
 from google.genai import Client
 from dataclasses import dataclass
 from .system_prompt import system_prompt
+from .context import set_scene_id, set_db_session
 from typing import List, Dict, Any, Optional
+from sqlalchemy.ext.asyncio import AsyncSession
 from google.genai.types import GenerateContentConfig
 
 load_dotenv()
@@ -86,7 +88,16 @@ def extract_response_data(parts, afc_history=None) -> AgentResponseData:
         thoughts="".join(thoughts)
     )
 
-async def gemini_agent(messages: List[dict], client: Client) -> AgentResponseData:
+async def gemini_agent(
+    messages: List[dict],
+    client: Client,
+    db: AsyncSession,
+    scene_id: str,
+) -> AgentResponseData:
+    # Inject context so tool functions can access db and scene_id
+    set_db_session(db)
+    set_scene_id(scene_id)
+
     try:
         response = await client.aio.models.generate_content(
             contents=messages,

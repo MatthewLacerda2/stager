@@ -1,4 +1,6 @@
 from typing import Optional, Dict, Any
+from ..context import get_scene_id, get_db_session, run_async
+from ....repositories.group_object_repository import GroupObjectRepository
 
 def create_group(
     name: str,
@@ -21,7 +23,18 @@ def create_group(
         scale_y: Y scale coordinate.
         scale_z: Z scale coordinate.
     """
-    pass
+    db = get_db_session()
+    scene_id = get_scene_id()
+    repo = GroupObjectRepository(db)
+
+    group = run_async(repo.create({
+        "scene_id": scene_id,
+        "name": name,
+        "pos_x": pos_x, "pos_y": pos_y, "pos_z": pos_z,
+        "rot_x": rot_x, "rot_y": rot_y, "rot_z": rot_z,
+        "scale_x": scale_x, "scale_y": scale_y, "scale_z": scale_z,
+    }))
+    return {"id": str(group.id), "status": "created"}
 
 def update_group(
     group_object_id: str,
@@ -44,7 +57,25 @@ def update_group(
         scale_y: Y scale coordinate.
         scale_z: Z scale coordinate.
     """
-    pass
+    db = get_db_session()
+    repo = GroupObjectRepository(db)
+
+    updates = {}
+    for field, value in [
+        ("pos_x", pos_x), ("pos_y", pos_y), ("pos_z", pos_z),
+        ("rot_x", rot_x), ("rot_y", rot_y), ("rot_z", rot_z),
+        ("scale_x", scale_x), ("scale_y", scale_y), ("scale_z", scale_z),
+    ]:
+        if value is not None:
+            updates[field] = value
+
+    if not updates:
+        return {"id": group_object_id, "status": "no changes"}
+
+    result = run_async(repo.update(group_object_id, updates))
+    if result is None:
+        return {"error": f"Group {group_object_id} not found"}
+    return {"id": group_object_id, "status": "updated"}
 
 def delete_group(group_object_id: str, delete_children: bool = False) -> Dict[str, Any]:
     """
@@ -54,4 +85,9 @@ def delete_group(group_object_id: str, delete_children: bool = False) -> Dict[st
         group_object_id: Target group object ID.
         delete_children: If true, all child objects are also deleted. If false, all children are safely detached with the transformations preserved.
     """
-    pass
+    db = get_db_session()
+    repo = GroupObjectRepository(db)
+    deleted = run_async(repo.delete_with_children(group_object_id, delete_children))
+    if not deleted:
+        return {"error": f"Group {group_object_id} not found"}
+    return {"id": group_object_id, "status": "deleted"}

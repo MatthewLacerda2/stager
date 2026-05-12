@@ -1,4 +1,6 @@
 from typing import Optional, Dict, Any
+from ..context import get_scene_id, get_db_session, run_async
+from ....repositories.light_repository import LightRepository
 
 def create_light(
     type: str,
@@ -25,7 +27,17 @@ def create_light(
         color: Hex color string.
         intensity: Energy/power value.
     """
-    pass
+    db = get_db_session()
+    scene_id = get_scene_id()
+    repo = LightRepository(db)
+    light = run_async(repo.create({
+        "scene_id": scene_id, "type": type,
+        "pos_x": pos_x, "pos_y": pos_y, "pos_z": pos_z,
+        "rot_x": rot_x, "rot_y": rot_y, "rot_z": rot_z,
+        "scale_x": scale_x, "scale_y": scale_y, "scale_z": scale_z,
+        "color": color, "intensity": intensity,
+    }))
+    return {"id": str(light.id), "status": "created"}
 
 def update_light(
     light_id: str,
@@ -52,7 +64,23 @@ def update_light(
         color: Hex color string.
         intensity: Energy/power value.
     """
-    pass
+    db = get_db_session()
+    repo = LightRepository(db)
+    updates = {}
+    for field, value in [
+        ("pos_x", pos_x), ("pos_y", pos_y), ("pos_z", pos_z),
+        ("rot_x", rot_x), ("rot_y", rot_y), ("rot_z", rot_z),
+        ("scale_x", scale_x), ("scale_y", scale_y), ("scale_z", scale_z),
+        ("color", color), ("intensity", intensity),
+    ]:
+        if value is not None:
+            updates[field] = value
+    if not updates:
+        return {"id": light_id, "status": "no changes"}
+    result = run_async(repo.update(light_id, updates))
+    if result is None:
+        return {"error": f"Light {light_id} not found"}
+    return {"id": light_id, "status": "updated"}
 
 def delete_light(light_id: str) -> Dict[str, Any]:
     """
@@ -61,4 +89,9 @@ def delete_light(light_id: str) -> Dict[str, Any]:
     Args:
         light_id: Target light ID.
     """
-    pass
+    db = get_db_session()
+    repo = LightRepository(db)
+    deleted = run_async(repo.delete(light_id))
+    if not deleted:
+        return {"error": f"Light {light_id} not found"}
+    return {"id": light_id, "status": "deleted"}

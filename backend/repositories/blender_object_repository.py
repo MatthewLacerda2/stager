@@ -9,7 +9,7 @@ class BlenderObjectRepository(BaseRepository[BlenderObject]):
     def __init__(self, db: AsyncSession):
         super().__init__(BlenderObject, db)
 
-    async def semantic_search(self, query_embedding: list[float], limit: int = 5) -> List[BlenderObject]:
+    async def semantic_search(self, query_embedding: list[float], limit: int = 16) -> List[BlenderObject]:
         query = (
             select(self.model)
             .order_by(self.model.description_embedding.cosine_distance(query_embedding))
