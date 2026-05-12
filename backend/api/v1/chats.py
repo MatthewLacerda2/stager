@@ -1,3 +1,4 @@
+import logging
 from fastapi import APIRouter, Depends, HTTPException
 from uuid import UUID
 from typing import List
@@ -17,6 +18,7 @@ router = APIRouter()
 # Shared Gemini client (reused across requests)
 _client = Client()
 
+logger = logging.getLogger(__name__)
 
 async def _run_agent_turn(db, scene_id, chat_id, turn_id, prompt):
     """Run the Gemini agent loop for a single user prompt and persist results."""
@@ -33,6 +35,8 @@ async def _run_agent_turn(db, scene_id, chat_id, turn_id, prompt):
     if agent_result.text:
         turn_repo = ChatTurnRepository(db)
         await turn_repo.update(turn_id, {"agent_response": agent_result.text})
+    else:
+        logger.warning(f"Agent did not produce a text response for scene {scene_id} and chat {chat_id}")
 
     # Persist tool call logs
     if agent_result.tool_calls:
