@@ -38,9 +38,9 @@ async def create_group(
 
 async def update_group(
     group_object_id: str,
-    pos_x: Optional[float] = None, pos_y: Optional[float] = None, pos_z: Optional[float] = None,
-    rot_x: Optional[float] = None, rot_y: Optional[float] = None, rot_z: Optional[float] = None,
-    scale_x: Optional[float] = None, scale_y: Optional[float] = None, scale_z: Optional[float] = None
+    pos_x: float = None, pos_y: float = None, pos_z: float = None,
+    rot_x: float = None, rot_y: float = None, rot_z: float = None,
+    scale_x: float = None, scale_y: float = None, scale_z: float = None
 ) -> Dict[str, Any]:
     """
     Moves, rotates, or scales an entire group at once. Only provided fields will be updated.

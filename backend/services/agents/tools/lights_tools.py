@@ -41,11 +41,11 @@ async def create_light(
 
 async def update_light(
     light_id: str,
-    pos_x: Optional[float] = None, pos_y: Optional[float] = None, pos_z: Optional[float] = None,
-    rot_x: Optional[float] = None, rot_y: Optional[float] = None, rot_z: Optional[float] = None,
-    scale_x: Optional[float] = None, scale_y: Optional[float] = None, scale_z: Optional[float] = None,
-    color: Optional[str] = None,
-    intensity: Optional[float] = None
+    pos_x: float = None, pos_y: float = None, pos_z: float = None,
+    rot_x: float = None, rot_y: float = None, rot_z: float = None,
+    scale_x: float = None, scale_y: float = None, scale_z: float = None,
+    color: str = None,
+    intensity: float = None
 ) -> Dict[str, Any]:
     """
     Modifies existing light properties. Only provided fields will be updated.

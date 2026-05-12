@@ -40,10 +40,10 @@ async def create_camera(
 
 async def update_camera(
     camera_id: str,
-    pos_x: Optional[float] = None, pos_y: Optional[float] = None, pos_z: Optional[float] = None,
-    rot_x: Optional[float] = None, rot_y: Optional[float] = None, rot_z: Optional[float] = None,
-    fov: Optional[float] = None,
-    is_active: Optional[bool] = None
+    pos_x: float = None, pos_y: float = None, pos_z: float = None,
+    rot_x: float = None, rot_y: float = None, rot_z: float = None,
+    fov: float = None,
+    is_active: bool = None
 ) -> Dict[str, Any]:
     """
     Adjusts framing, resolution, or focal settings. Only provided fields will be updated.

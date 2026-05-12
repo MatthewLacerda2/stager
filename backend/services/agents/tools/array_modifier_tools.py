@@ -45,11 +45,11 @@ async def create_array_modifier(
 
 async def update_array_modifier(
     array_modifier_id: str,
-    count: Optional[int] = None,
-    offset_type: Optional[str] = None,
-    factor_x: Optional[float] = None,
-    factor_y: Optional[float] = None,
-    factor_z: Optional[float] = None
+    count: int = None,
+    offset_type: str = None,
+    factor_x: float = None,
+    factor_y: float = None,
+    factor_z: float = None
 ) -> Dict[str, Any]:
     """
     Updates the parameters of an existing Array modifier. Only provided fields will be updated.

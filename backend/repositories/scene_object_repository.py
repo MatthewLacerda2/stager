@@ -11,13 +11,13 @@ class SceneObjectRepository(BaseRepository[SceneObject]):
         super().__init__(SceneObject, db)
 
     async def semantic_search(self, scene_id: str, query_str: str, query_embedding: list[float], limit: int = 5) -> List[SceneObject]:
-        from sqlalchemy import literal, case
+        from sqlalchemy import literal, case, any_
 
         words = [w.lower() for w in query_str.split() if w]
         if words:
             # Calculate match score: how many queried words exist in the keywords array
             keyword_score = sum(
-                case((literal(w).op("= ANY")(BlenderObject.keywords), 1), else_=0)
+                case((literal(w) == any_(BlenderObject.keywords), 1), else_=0)
                 for w in words
             )
         else:
