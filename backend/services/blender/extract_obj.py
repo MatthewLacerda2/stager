@@ -39,7 +39,7 @@ def process(input_file, output_file):
             obj.select_set(False)
     bpy.ops.object.delete()
 
-    # Join all meshes
+    # Join all meshes first to unify everything before separating
     meshes = [obj for obj in bpy.context.scene.objects if obj.type == 'MESH']
     if not meshes:
         raise ValueError("No meshes found in file.")
@@ -50,46 +50,69 @@ def process(input_file, output_file):
     if len(meshes) > 1:
         bpy.ops.object.join()
 
-    target = bpy.context.active_object
+    # Separate the unified mesh by loose parts (mesh islands)
+    bpy.ops.object.mode_set(mode='EDIT')
+    bpy.ops.mesh.select_all(action='SELECT')
+    bpy.ops.mesh.separate(type='LOOSE')
+    bpy.ops.object.mode_set(mode='OBJECT')
 
-    # Calculate bounding box and sphere radius
-    local_bbox_corners = [Vector(corner) for corner in target.bound_box]
-    center_local = sum(local_bbox_corners, Vector()) / 8.0
-    center_world = target.matrix_world @ center_local
-
-    dimensions = target.dimensions
-    boundbox_x = dimensions.x
-    boundbox_y = dimensions.y
-    boundbox_z = dimensions.z
-
-    boundbox_offset_x = center_world.x
-    boundbox_offset_y = center_world.y
-    boundbox_offset_z = center_world.z
-
-    radius = max((target.matrix_world @ v - center_world).length for v in local_bbox_corners)
-    radius_offset_x = center_world.x
-    radius_offset_y = center_world.y
-    radius_offset_z = center_world.z
-
-    bounds_data = {
-        "boundbox_x": boundbox_x,
-        "boundbox_y": boundbox_y,
-        "boundbox_z": boundbox_z,
-        "boundbox_offset_x": boundbox_offset_x,
-        "boundbox_offset_y": boundbox_offset_y,
-        "boundbox_offset_z": boundbox_offset_z,
-        "radius": radius,
-        "radius_offset_x": radius_offset_x,
-        "radius_offset_y": radius_offset_y,
-        "radius_offset_z": radius_offset_z,
-    }
-
-    # Export
-    bpy.ops.wm.obj_export(filepath=output_file, export_selected_objects=True)
+    # Get all the resulting separated mesh objects
+    separated_meshes = [obj for obj in bpy.context.scene.objects if obj.type == 'MESH']
     
-    # We no longer need the sidecar file if called directly via the worker!
-    # But for CLI compatibility we can optionally write it or just return the dict.
-    return bounds_data
+    extracted_objects = []
+    base_dir = os.path.dirname(output_file)
+    base_name = os.path.splitext(os.path.basename(output_file))[0]
+
+    for idx, target in enumerate(separated_meshes):
+        # Select ONLY this specific object
+        bpy.ops.object.select_all(action='DESELECT')
+        target.select_set(True)
+        bpy.context.view_layer.objects.active = target
+
+        # Calculate bounding box and sphere radius
+        local_bbox_corners = [Vector(corner) for corner in target.bound_box]
+        center_local = sum(local_bbox_corners, Vector()) / 8.0
+        center_world = target.matrix_world @ center_local
+
+        dimensions = target.dimensions
+        boundbox_x = dimensions.x
+        boundbox_y = dimensions.y
+        boundbox_z = dimensions.z
+
+        boundbox_offset_x = center_world.x
+        boundbox_offset_y = center_world.y
+        boundbox_offset_z = center_world.z
+
+        radius = max((target.matrix_world @ v - center_world).length for v in local_bbox_corners)
+        radius_offset_x = center_world.x
+        radius_offset_y = center_world.y
+        radius_offset_z = center_world.z
+
+        bounds_data = {
+            "boundbox_x": boundbox_x,
+            "boundbox_y": boundbox_y,
+            "boundbox_z": boundbox_z,
+            "boundbox_offset_x": boundbox_offset_x,
+            "boundbox_offset_y": boundbox_offset_y,
+            "boundbox_offset_z": boundbox_offset_z,
+            "radius": radius,
+            "radius_offset_x": radius_offset_x,
+            "radius_offset_y": radius_offset_y,
+            "radius_offset_z": radius_offset_z,
+        }
+
+        # Use an indexed file name for each sub-mesh island
+        part_output_file = os.path.join(base_dir, f"{base_name}_{idx}.obj")
+
+        # Export the selected part
+        bpy.ops.wm.obj_export(filepath=part_output_file, export_selected_objects=True)
+
+        extracted_objects.append({
+            "output_file": part_output_file,
+            "bounds": bounds_data
+        })
+
+    return extracted_objects
 
 if __name__ == "__main__":
     # Parse arguments passed after "--"

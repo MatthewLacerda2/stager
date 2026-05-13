@@ -16,15 +16,16 @@ def _send_request(endpoint: str, payload: dict) -> dict:
         error_body = e.read().decode()
         raise Exception(f"Blender Worker Error [{e.code}]: {error_body}")
 
-def run_blender_extract_obj(raw_file_path: str, output_obj_path: str) -> Tuple[str, Dict[str, float]]:
-    """Tells the persistent Blender worker to extract and clean the obj, returning bounds."""
+def run_blender_extract_obj(raw_file_path: str, output_obj_path: str) -> List[Tuple[str, Dict[str, float]]]:
+    """Tells the persistent Blender worker to extract and clean the obj, returning a list of (path, bounds_data)."""
     print(f"Sending extract request to Blender worker for {raw_file_path}...")
     result = _send_request("/extract", {
         "input_file": raw_file_path,
         "output_file": output_obj_path
     })
     
-    return output_obj_path, result.get("bounds", {})
+    extracted = result.get("extracted", [])
+    return [(item["output_file"], item["bounds"]) for item in extracted]
 
 def run_blender_photoshoot(obj_file_path: str, output_dir: str) -> List[str]:
     """Tells the persistent Blender worker to take 5 screenshots of the obj."""

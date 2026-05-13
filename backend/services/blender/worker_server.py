@@ -20,8 +20,8 @@ class BlenderWorkerHandler(http.server.BaseHTTPRequestHandler):
             if self.path == "/extract":
                 input_file = payload["input_file"]
                 output_file = payload["output_file"]
-                bounds = extract_obj.process(input_file, output_file)
-                self._send_success({"bounds": bounds})
+                extracted = extract_obj.process(input_file, output_file)
+                self._send_success({"extracted": extracted})
                 
             elif self.path == "/photoshoot":
                 input_obj = payload["input_obj"]

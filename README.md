@@ -41,16 +41,19 @@ The tools are Python functions that manipulate Blender.
 
 ## Asset Indexing Pipeline
 
-Pipeline for indexing `.obj` or `.blend` assets.
+Pipeline for indexing `.obj` or `.blend` assets to the database.
 
 - **`/services/AssetIndexerService/`** (Orchestrator & DB)
   - `indexer_job.py`: Receives raw files and calls the next scripts.
+    /storage/assets
   - `blender_processor.py`: Wraps these Blender scripts in Python functions.
     - `extract_obj.py`: Extracts only the meshes, merges them, and exports to `.obj`.
     - `photoshoot.py`: Renders pictures around the object from different angles.
+    /temp_processing
   - `gemini_description.py`: Describes the object based on the pictures using Gemini.
   - `gemini_embedding.py`: Embeds the text description.
   - `save_indexed_obj.py`: Saves the data to the db and the .obj in storage/assets.
+    /assets
 
 ## Database
 
@@ -94,6 +97,10 @@ Or, you can run it locally:
 In a separate terminal:
 `cd frontend`
 `npm i && npm run dev`
+
+To Index Assets into the db
+Copy your .obj or .blend files to storage/import_queue. Then run:
+`docker-compose exec stager_backend python backend/run_indexer.py storage/import_queue/your_file.obj`
 
 # Future
 

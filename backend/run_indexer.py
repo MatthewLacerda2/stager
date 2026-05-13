@@ -17,8 +17,8 @@ async def main():
     async with AsyncSessionLocal() as db:
         print(f"Starting indexing for: {file_path}...")
         try:
-            object_id = await index_asset(db, file_path)
-            print(f"🎉 Successfully indexed asset! Database ID: {object_id}")
+            object_ids = await index_asset(db, file_path)
+            print(f"🎉 Successfully indexed assets! Database IDs: {object_ids}")
         except Exception as e:
             print(f"❌ Indexing failed with error: {e}")
             import traceback

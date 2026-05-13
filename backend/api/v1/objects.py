@@ -40,7 +40,7 @@ async def upload_object(file: UploadFile = File(...), db: AsyncSession = Depends
         shutil.copyfileobj(file.file, f)
 
     try:
-        new_id = await index_asset(db, raw_path)
+        new_ids = await index_asset(db, raw_path)
     except FileNotFoundError as e:
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
@@ -50,8 +50,11 @@ async def upload_object(file: UploadFile = File(...), db: AsyncSession = Depends
         if os.path.exists(raw_path):
             os.remove(raw_path)
 
+    if not new_ids:
+        raise HTTPException(status_code=400, detail="No assets extracted.")
+
     repo = BlenderObjectRepository(db)
-    obj = await repo.get_by_id(new_id)
+    obj = await repo.get_by_id(new_ids[0])
     return obj
 
 @router.delete("/{object_id}", status_code=204)
