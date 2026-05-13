@@ -11,6 +11,7 @@ class RenderResponse(BaseModel):
     id: UUID4
     scene_id: UUID4
     camera_id: UUID4
+    is_sketch: bool
     image_url: Optional[str] = None
     description: Optional[str] = None
     created_at: datetime

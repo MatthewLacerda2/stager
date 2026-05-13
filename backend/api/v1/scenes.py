@@ -1,3 +1,4 @@
+from typing import List
 from fastapi import APIRouter, Depends, HTTPException
 from uuid import UUID
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -7,6 +8,13 @@ from ...schemas.scene import SceneCreate, SceneResponse, SceneFullResponse
 from ..helpers import build_scene_state
 
 router = APIRouter()
+
+@router.get("/", response_model=List[SceneResponse])
+async def list_scenes(db: AsyncSession = Depends(get_db)):
+    """List all available 3D scenes."""
+    repo = SceneRepository(db)
+    scenes = await repo.get_all()
+    return scenes
 
 @router.post("/", response_model=SceneResponse)
 async def create_scene(request: SceneCreate, db: AsyncSession = Depends(get_db)):

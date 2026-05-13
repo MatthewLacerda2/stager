@@ -12,6 +12,7 @@ from ...repositories.agent_log_repository import AgentLogRepository
 from ...schemas.chat import ChatCreate, ChatResume, ChatResponse, ChatInteractionResponse
 from ...services.agents.gemini_agent import gemini_agent
 from ..helpers import build_scene_state
+from ...schemas.chat import ChatTurnResponse
 
 router = APIRouter()
 
@@ -132,6 +133,14 @@ async def resume_chat(chat_id: UUID, request: ChatResume, db: AsyncSession = Dep
         agent_response=agent_result.text or None,
         scene_state=state,
     )
+
+
+@router.get("/{chat_id}/history", response_model=List[ChatTurnResponse])
+async def get_chat_history(chat_id: UUID, db: AsyncSession = Depends(get_db)):
+    """Retrieve the conversation history (turns) for an existing chat."""
+    repo = ChatTurnRepository(db)
+    turns = await repo.get_recent_history(chat_id)
+    return turns
 
 
 @router.delete("/{chat_id}", status_code=204)

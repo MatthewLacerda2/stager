@@ -53,13 +53,33 @@ async def list_renders(offset: int = 0, limit: int = 10, db: AsyncSession = Depe
     )
 
 @router.get("/{render_id}", response_model=RenderResponse)
-async def get_render(render_id: UUID, db: AsyncSession = Depends(get_db)):
+async def get_render_details(render_id: UUID, db: AsyncSession = Depends(get_db)):
     """Get details of a specific render."""
     repo = RenderRepository(db)
     render = await repo.get_by_id(render_id)
     if not render:
         raise HTTPException(status_code=404, detail="Render not found")
     return render
+
+@router.get("/{render_id}/file")
+async def get_render_file(render_id: UUID, db: AsyncSession = Depends(get_db)):
+    """Download the actual render PNG file."""
+    import os
+    from fastapi.responses import FileResponse
+    repo = RenderRepository(db)
+    render = await repo.get_by_id(render_id)
+    if not render:
+        raise HTTPException(status_code=404, detail="Render not found")
+    
+    if not render.image_url or not os.path.exists(render.image_url):
+        raise HTTPException(status_code=404, detail="Render image file not found")
+        
+    filename = f"render_{render_id}.png"
+    return FileResponse(
+        path=render.image_url,
+        media_type="image/png",
+        filename=filename
+    )
 
 @router.delete("/{render_id}", status_code=204)
 async def delete_render(render_id: UUID, db: AsyncSession = Depends(get_db)):
