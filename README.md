@@ -99,8 +99,17 @@ In a separate terminal:
 `npm i && npm run dev`
 
 To Index Assets into the db
-Copy your .obj or .blend files to storage/import_queue. Then run:
-`docker-compose exec stager_backend python backend/run_indexer.py storage/import_queue/your_file.obj`
+Copy your .obj or .blend files to `storage/import_queue`. Then you can index a single file or an entire folder of files:
+
+- **Single File**:
+  `docker-compose exec backend python backend/run_indexer.py storage/import_queue/your_file.obj`
+
+- **Entire Folder (Batch)**:
+  `docker-compose exec backend python backend/run_indexer.py storage/import_queue`
+
+_NOTE_: be careful not to run the indexing twice on the same file.
+
+To remove an asset from the db and storage/assets, just delete it's row manually.
 
 # Future
 
