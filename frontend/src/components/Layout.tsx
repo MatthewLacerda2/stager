@@ -10,7 +10,7 @@ export default function Layout() {
   useEffect(() => {
     if (sceneId) {
       getScene(sceneId)
-        .then((scene) => setSceneName(scene.name))
+        .then((scene) => setSceneName(scene.name || ''))
         .catch((err) => console.error('Failed to load scene name in breadcrumbs', err));
     } else {
       setSceneName('');

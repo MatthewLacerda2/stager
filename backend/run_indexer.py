@@ -33,14 +33,14 @@ async def main():
                 print(f"\n[{idx}/{len(files_to_index)}] Indexing: {file_path}...")
                 try:
                     object_ids = await index_asset(db, file_path)
-                    print(f"  🎉 Successfully indexed! Database IDs: {object_ids}")
+                    print(f"  🎉 Successfully indexed!")
                 except Exception as e:
                     print(f"  ❌ Indexing failed with error: {e}")
         else:
             print(f"Starting indexing for: {input_path}...")
             try:
                 object_ids = await index_asset(db, input_path)
-                print(f"🎉 Successfully indexed asset! Database IDs: {object_ids}")
+                print(f"🎉 Successfully indexed asset!")
             except Exception as e:
                 print(f"❌ Indexing failed with error: {e}")
                 import traceback
