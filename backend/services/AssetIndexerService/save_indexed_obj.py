@@ -9,6 +9,7 @@ async def save_indexed_asset(
     original_name: str,
     temp_obj_path: str,
     description: str,
+    keywords: List[str],
     embedding: list[float],
     bounds_data: dict
 ) -> BlenderObject:
@@ -27,6 +28,7 @@ async def save_indexed_asset(
             new_object = BlenderObject(
                 name=original_name,
                 description=description,
+                keywords=keywords,
                 description_embedding=embedding,
                 asset_path=final_obj_path,
                 boundbox_x=bounds_data.get("boundbox_x"),

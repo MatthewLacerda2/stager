@@ -37,7 +37,9 @@ async def index_asset(db: AsyncSession, raw_file_path: str) -> List[str]:
         screenshot_paths = run_blender_photoshoot(part_obj_path, temp_workspace)
         
         # Step 3: AI Visual Description (Gemini)
-        description = describe_asset_with_gemini(screenshot_paths)
+        gemini_res = describe_asset_with_gemini(screenshot_paths)
+        description = gemini_res["description"]
+        keywords = gemini_res["keywords"]
         
         # Step 4: Text Embedding (Gemini)
         embedding = get_gemini_embedding(description)
@@ -48,6 +50,7 @@ async def index_asset(db: AsyncSession, raw_file_path: str) -> List[str]:
             original_name=part_name,
             temp_obj_path=part_obj_path,
             description=description,
+            keywords=keywords,
             embedding=embedding,
             bounds_data=bounds_data
         )
