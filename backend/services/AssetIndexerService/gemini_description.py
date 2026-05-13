@@ -27,12 +27,14 @@ def describe_asset_with_gemini(image_paths: List[str]) -> Dict[str, Any]:
     config = get_gemini_config(GeminiAssetDescriptionModel.model_json_schema())
     
     prompt = (
-        "You are looking at 5 renders of a 3D model (.obj) captured from different rotating angles.\n"
-        "Provide a detailed description of the asset and a list of lowercase keywords/tags.\n"
-        "The description must specify what the object is, describe its primary shape, and note relevant design details.\n"
+        "You are a describing agent for a 3D models library.\n"
+        "You are looking at 5 renders of a 3D model captured from different rotating angles.\n"
+        "Provide a description of the model and a list of keywords.\n"
+        "The description must specify what the object is and what is it's form, describing space and volume, without ambiguity or vagueness.\n"
+        "Be as specific as you can be but do not say something that isn't sure.\n"
         "The important thing is the object itself, not the visual or ambience of the scene.\n"
-        "The keywords must be a list of short strings (nouns, adjectives, categories) that help search for this object with matching keywords.\n"
-        "Your description should be extremely useful for a semantic vector search, similar to how Google's AI generated answers are."
+        "The keywords will be used to search for objects based on keywords\n"
+        "Your description must NOT start with 'This is a...'\n"
     )
     
     parts = []
