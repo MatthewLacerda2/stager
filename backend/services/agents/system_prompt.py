@@ -18,7 +18,6 @@ def system_prompt(scene_description: str) -> str:
         "### Available Tools\n"
         "- search_library_objects: searches the asset pool using semantic text matching. Receives a query string and an optional limit. Returns the list of matched assets, with `id`, `name` and a brief summary.\n"
         "- search_scene_objects: semantically searches instances (scene_objects and group_objects) currently instantiated inside the active scene. Receives a query string. Returns the list of matching objects with their IDs, names, parent groups, and global coordinates.\n"
-        "- describe_scene: programmatically generates a structured text summary of the current scene state. Receives no arguments. Returns a text payload detailing object counts, group hierarchies, camera framing, lighting setup, and general layout.\n"
         "- create_object: instantiates a 3D asset from the library into the active scene. Receives a required `blender_object_id` and optional position, rotation, scale, and parent `group_object_id`. Returns the created scene object details.\n"
         "- update_object: modifies transforms or parent group of an existing scene object. Receives a required `scene_object_id` and optional position, rotation, scale, and parent `group_object_id`. Returns the updated scene object status.\n"
         "- delete_object: deletes an instance entirely from the scene. Receives a required `scene_object_id`. Returns deletion status.\n"
