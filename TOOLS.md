@@ -157,6 +157,15 @@ This document defines the tools available to the Gemini agentic loop for manipul
 * **Arguments:**
   * `camera_id` (uuid, required)
 
+### `camera_look_at`
+* **Purpose:** Rotates a camera to face a specific target point in 3D space, analogous to `Transform.LookAt()` in Unity (keeps camera local X-axis parallel to the world XY plane, ensuring zero roll).
+* **Arguments:**
+  * `camera_id` (uuid, required)
+  * `target_x` (float, required)
+  * `target_y` (float, required)
+  * `target_z` (float, required)
+* **Returns:** Concise JSON with status, the target camera ID, and the newly calculated Euler rotations (`rot_x`, `rot_y`, `rot_z`).
+
 ---
 
 ## 7. Visual Feedback & Export

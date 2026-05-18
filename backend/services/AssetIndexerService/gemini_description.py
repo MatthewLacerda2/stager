@@ -54,7 +54,7 @@ def describe_asset_with_gemini(image_paths: List[str]) -> Dict[str, Any]:
         raise ValueError("No valid screenshot images found for photoshoot description.")
 
     response = client.models.generate_content(
-        model="gemini-3.1-flash-lite-preview",
+        model="gemini-3.1-flash-lite",
         contents=[prompt, *parts],
         config=config
     )

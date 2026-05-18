@@ -1,4 +1,5 @@
 from .tools import tools
+from .tools.discovery_tools import describe_scene
 from dotenv import load_dotenv
 from google.genai import Client
 from dataclasses import dataclass
@@ -9,8 +10,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from google.genai.types import GenerateContentConfig
 
 load_dotenv()
-
-instruction = system_prompt()
 
 @dataclass
 class ToolCallData:
@@ -98,10 +97,13 @@ async def gemini_agent(
     set_db_session(db)
     set_scene_id(scene_id)
 
+    scene_desc = await describe_scene()
+    instruction = system_prompt(scene_desc)
+
     try:
         response = await client.aio.models.generate_content(
             contents=messages,
-            model="gemini-3.1-flash-lite-preview",
+            model="gemini-3.1-flash-lite",
             config=GenerateContentConfig(
                 system_instruction=instruction,
                 tools=tools,

@@ -1,15 +1,14 @@
-from .discovery_tools import search_library_objects, search_scene_objects, describe_scene
+from .discovery_tools import search_library_objects, search_scene_objects
 from .objects_tools import create_object, update_object, delete_object
 from .groups_tools import create_group, update_group, delete_group
 from .array_modifier_tools import create_array_modifier, update_array_modifier, delete_array_modifier
 from .lights_tools import create_light, update_light, delete_light
-from .camera_tools import create_camera, update_camera, delete_camera
+from .camera_tools import create_camera, update_camera, delete_camera, camera_look_at
 from .rendering_tools import render_scene
 
 tools = [
     search_library_objects,
     search_scene_objects,
-    describe_scene,
     create_object,
     update_object,
     delete_object,
@@ -25,13 +24,13 @@ tools = [
     create_camera,
     update_camera,
     delete_camera,
+    camera_look_at,
     render_scene
 ]
 
 __all__ = [
     "search_library_objects",
     "search_scene_objects",
-    "describe_scene",
     "create_object",
     "update_object",
     "delete_object",
@@ -47,6 +46,7 @@ __all__ = [
     "create_camera",
     "update_camera",
     "delete_camera",
+    "camera_look_at",
     "render_scene",
     "tools"
 ]
